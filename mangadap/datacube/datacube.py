@@ -858,6 +858,9 @@ class DataCube:
         # Grab the masked arrays
         flux = self.copy_to_masked_array(waverange=waverange, flag=flag)
         ivar = self.copy_to_masked_array(attr='ivar', waverange=waverange, flag=flag)
+        # convert to float32 due to memory allocation error with MUSE cubes
+        flux = flux.astype('float32')
+        ivar = ivar.astype('float32')
         snr = flux*numpy.ma.sqrt(ivar)
 
         # Set the response function

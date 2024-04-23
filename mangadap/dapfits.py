@@ -647,7 +647,7 @@ class construct_maps_file:
         sindxlist = self.spectral_index_maps(prihdr, spectral_indices)
 
         # Save the data to the hdu attribute
-        prihdr = add_snr_metrics_to_header(prihdr, self.cube, rdxqalist[1].data[:,:,1].ravel())
+        #prihdr = add_snr_metrics_to_header(prihdr, self.cube, rdxqalist[1].data[:,:,1].ravel())
         
         prihdr = finalize_dap_primary_header(prihdr, self.cube, self.meta, binned_spectra,
                                              stellar_continuum, loggers=self.loggers,
@@ -2390,7 +2390,8 @@ def add_snr_metrics_to_header(hdr, cube, r_re):
 
         if covar is None:
             warnings.warn('Covariance not available!  Continuing without it.')
-            covar = Covariance.from_variance(variance, correlation=True)
+            # convert variance from float64 to float32 due to memory allocation error from MUSE cube
+            covar = Covariance.from_variance(variance.astype('float32'), correlation=True)
             
         # Get the appropriate covariance pixels to select
         ci, cj = map( lambda x: x.ravel(), numpy.meshgrid(indx, indx) )

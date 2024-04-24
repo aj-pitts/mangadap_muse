@@ -695,8 +695,8 @@ class SquareBinning(SpatialBinning):
         nslicex = numpy.int(numpy.ceil((maxx) / binsz))
         nslicey = numpy.int(numpy.ceil((maxy) / binsz))
         # changed line 697 and 698 from 1.0 to 1 in the last argument (E.A)
-        x_lo = numpy.linspace(0.0,(nslicex*binsz),nslicex+1)
-        y_lo = numpy.linspace(0.0,(nslicey*binsz),nslicey+1)
+        x_lo = numpy.linspace(0.0,(nslicex*binsz),numpy.abs(nslicex)+1)
+        y_lo = numpy.linspace(0.0,(nslicey*binsz),numpy.abs(nslicey)+1)
 
 
         # Find which spaxels land in each aperture
@@ -713,7 +713,7 @@ class SquareBinning(SpatialBinning):
         nslicex = numpy.int(numpy.ceil((maxx) / binsz))
         nslicey = numpy.int(numpy.floor((miny) / binsz))
         # changed line 716 and 717 from 1.0 to 1 in the last argument (E.A)
-        x_lo = numpy.linspace(0.0, (nslicex * binsz), nslicex + 1)
+        x_lo = numpy.linspace(0.0, (nslicex * binsz), numpy.abs(nslicex) + 1)
         y_lo = numpy.linspace(0.0, (nslicey * binsz), numpy.abs(nslicey) + 1)
 
         # Find which spaxels land in each aperture

@@ -650,7 +650,9 @@ class Covariance:
                 Upon instantiation, convert the :class:`Covariance`
                 object to a correlation matrix.
         """
-        return cls(sparse.csr.csr_matrix(numpy.diagflat(variance)), correlation=correlation)
+        # replaced numpy.diagflat with sparse.diags due to memory allocation error from MUSE cube.
+        # return cls(sparse.csr.csr_matrix(numpy.diagflat(variance)), correlation=correlation)
+        return cls(sparse.diags(variance.flatten(), format='csr'), correlation=correlation)
 
     def _grab_true_index(self, inp):
         """
@@ -1326,13 +1328,18 @@ class Covariance:
             return self.var.copy() if copy else self.var
 
         if self.dim == 2:
-            self.var = numpy.diag(self.cov.toarray()).copy()
+            # replaced numpy.diagflat with sparse.diags due to memory allocation error from MUSE cube.
+            # self.var = numpy.diag(self.cov.toarray()).copy()
+            cov = (self.cov.toarray()).astype('float32')
+            self.var = ( sparse.diags(cov.flatten()).toarray() ).copy()
             return self.var
 
         self.var = numpy.empty(self.shape[1:], dtype=numpy.float)
         for p in range(self.shape[-1]):
-            self.var[:,p] = numpy.diag(self.cov[p].toarray()).copy()
-
+            # replaced numpy.diagflat with sparse.diags due to memory allocation error from MUSE cube.
+            # self.var[:,p] = numpy.diag(self.cov[p].toarray()).copy()
+            cov = (self.cov[p].toarray()).astype('float32')
+            self.var[:,p] = ( sparse.diags(cov.flatten()).toarray() ).copy()
         return self.var.copy() if copy else self.var
 
     def to_correlation(self):

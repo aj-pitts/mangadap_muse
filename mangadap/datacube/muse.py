@@ -36,6 +36,7 @@ from ..util.constants import DAPConstants
 from ..util.covariance import Covariance
 from ..spectra import MaNGARSS
 from .datacube import DataCube
+from IPython import embed
 
 class MUSEDataCube(DataCube):
     r"""
@@ -207,6 +208,10 @@ class MUSEDataCube(DataCube):
                 resampled_error[:,spatial_index[i][0],spatial_index[i][1]][indx] = 1.0
                 resampled_mask[:,spatial_index[i][0],spatial_index[i][1]][indx] = True
 
+            # get rid of lingering NaN values
+            resampled_flux[numpy.logical_not(numpy.isfinite(resampled_flux))] = 0.0
+            resampled_error[numpy.logical_not(numpy.isfinite(resampled_flux))] = 1.0
+            resampled_mask[numpy.logical_not(numpy.isfinite(resampled_flux))] = True
 
             # Recreate ivar
             resampled_ivar = 1.0 / resampled_error**2

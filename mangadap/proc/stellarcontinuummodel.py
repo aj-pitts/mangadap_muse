@@ -1038,7 +1038,7 @@ class StellarContinuumModel:
         model_mask = self.hdu['MASK'].data.copy()
 
         flux, mask = DAPFitsUtil.reconstruct_cube(self.shape, bin_indx.ravel(),
-                                                  [model_flux, model_mask])
+                                                  [model_flux, model_mask],self.quiet)
 
         mask = self._finalize_cube_mask(mask)
 

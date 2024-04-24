@@ -216,7 +216,7 @@ def stellar_continuum_maps(plt, ifu, daptype, snr, r68, r99, rchi2, signal, a, d
     ax.set_ylim(extent[2:])
     ax.add_patch(map_beam_patch(extent, ax, facecolor='0.7', edgecolor='k', zorder=4))
     ax.text(0.1, 0.95, r'68% Frac. Resid', horizontalalignment='left', verticalalignment='center',
-            transform=ax.transAxes)
+            transform=ax.transAxes,zorder=4, c='red')
 
 #    ax.text(0.5, 1.2, '{0}-{1}'.format(plt, ifu), horizontalalignment='center',
 #            verticalalignment='center', transform=ax.transAxes, fontsize=12)
@@ -237,7 +237,7 @@ def stellar_continuum_maps(plt, ifu, daptype, snr, r68, r99, rchi2, signal, a, d
     ax.set_ylim(extent[2:])
     ax.add_patch(map_beam_patch(extent, ax, facecolor='0.7', edgecolor='k', zorder=4))
     ax.text(0.1, 0.95, r'99% Frac. Resid', horizontalalignment='left', verticalalignment='center',
-            transform=ax.transAxes)
+            transform=ax.transAxes,zorder=4, c='red')
 
     # ------------------------------------------------------------------
     # Reduced chi-square
@@ -251,9 +251,9 @@ def stellar_continuum_maps(plt, ifu, daptype, snr, r68, r99, rchi2, signal, a, d
                   cmap='viridis_r', zorder=3, cbformat='%.2f')
     ax.set_xlim(extent[:2])
     ax.set_ylim(extent[2:])
-    ax.add_patch(map_beam_patch(extent, ax, facecolor='0.7', edgecolor='k', zorder=4))
+    #ax.add_patch(map_beam_patch(extent, ax, facecolor='0.7', edgecolor='k', zorder=4))
     ax.text(0.1, 0.95, r'$\chi^2_\nu$', horizontalalignment='left', verticalalignment='center',
-            transform=ax.transAxes)
+            transform=ax.transAxes,zorder=4, c='red')
 
 
     # ------------------------------------------------------------------
@@ -270,7 +270,7 @@ def stellar_continuum_maps(plt, ifu, daptype, snr, r68, r99, rchi2, signal, a, d
     ax.set_ylim(extent[2:])
     ax.add_patch(map_beam_patch(extent, ax, facecolor='0.7', edgecolor='k', zorder=4))
     ax.text(0.1, 0.95, r'$I_g$', horizontalalignment='left', verticalalignment='center',
-            transform=ax.transAxes)
+            transform=ax.transAxes,zorder=4, c='red')
 
     # ------------------------------------------------------------------
     # A
@@ -286,7 +286,7 @@ def stellar_continuum_maps(plt, ifu, daptype, snr, r68, r99, rchi2, signal, a, d
     ax.set_ylim(extent[2:])
     ax.add_patch(map_beam_patch(extent, ax, facecolor='0.7', edgecolor='k', zorder=4))
     ax.text(0.1, 0.95, r'$\log A$', horizontalalignment='left', verticalalignment='center',
-            transform=ax.transAxes)
+            transform=ax.transAxes,zorder=4, c='red')
 
     # ------------------------------------------------------------------
     # Delta A
@@ -302,7 +302,7 @@ def stellar_continuum_maps(plt, ifu, daptype, snr, r68, r99, rchi2, signal, a, d
     ax.set_ylim(extent[2:])
     ax.add_patch(map_beam_patch(extent, ax, facecolor='0.7', edgecolor='k', zorder=4))
     ax.text(0.1, 0.95, r'$\log A_n$', horizontalalignment='left', verticalalignment='center',
-            transform=ax.transAxes)
+            transform=ax.transAxes,zorder=4, c='red')
 
     # ------------------------------------------------------------------
     # Delta A/Ig
@@ -319,7 +319,7 @@ def stellar_continuum_maps(plt, ifu, daptype, snr, r68, r99, rchi2, signal, a, d
     ax.set_ylim(extent[2:])
     ax.add_patch(map_beam_patch(extent, ax, facecolor='0.7', edgecolor='k', zorder=4))
     ax.text(0.1, 0.95, r'$\log(\delta A_n)$', horizontalalignment='left',
-            verticalalignment='center', transform=ax.transAxes)
+            verticalalignment='center', transform=ax.transAxes,zorder=4, c='red')
 
     # ------------------------------------------------------------------
     # g-r Color
@@ -327,13 +327,13 @@ def stellar_continuum_maps(plt, ifu, daptype, snr, r68, r99, rchi2, signal, a, d
     ax = init_image_ax(fig, [left+i*(imwd+hbuf), bott+j*(imwd+vbuf), imwd, imwd ])
     cax = fig.add_axes([left+i*(imwd+hbuf)+imwd+cbuf, bott+j*(imwd+vbuf), cbwd, imwd ])
 #    print(numpy.sum(gmr.mask), numpy.prod(gmr.shape), numpy.sum(gmr.mask)/numpy.prod(gmr.shape))
-    masked_imshow(fig, ax, cax, gmr, extent=extent, vmin=gmr_lim[0], vmax=gmr_lim[1],
-                  cmap='RdBu_r', zorder=3, cbformat='%.1f')
+#     masked_imshow(fig, ax, cax, gmr, extent=extent, vmin=gmr_lim[0], vmax=gmr_lim[1],
+#                   cmap='RdBu_r', zorder=3, cbformat='%.1f')
     ax.set_xlim(extent[:2])
     ax.set_ylim(extent[2:])
     ax.add_patch(map_beam_patch(extent, ax, facecolor='0.7', edgecolor='k', zorder=4))
     ax.text(0.1, 0.95, r'$g-r$', horizontalalignment='left', verticalalignment='center',
-            transform=ax.transAxes)
+            transform=ax.transAxes,zorder=4, c='red')
 
     # ------------------------------------------------------------------
     # T
@@ -349,7 +349,7 @@ def stellar_continuum_maps(plt, ifu, daptype, snr, r68, r99, rchi2, signal, a, d
     ax.set_ylim(extent[2:])
     ax.add_patch(map_beam_patch(extent, ax, facecolor='0.7', edgecolor='k', zorder=4))
     ax.text(0.1, 0.95, r'$\log T$', horizontalalignment='left', verticalalignment='center',
-            transform=ax.transAxes)
+            transform=ax.transAxes,zorder=4, c='red')
 
     # ------------------------------------------------------------------
     # Delta T
@@ -365,7 +365,7 @@ def stellar_continuum_maps(plt, ifu, daptype, snr, r68, r99, rchi2, signal, a, d
     ax.set_ylim(extent[2:])
     ax.add_patch(map_beam_patch(extent, ax, facecolor='0.7', edgecolor='k', zorder=4))
     ax.text(0.1, 0.95, r'$\log T_n$', horizontalalignment='left', verticalalignment='center',
-            transform=ax.transAxes)
+            transform=ax.transAxes,zorder=4, c='red')
 
     # ------------------------------------------------------------------
     # Delta T/Ig
@@ -382,7 +382,7 @@ def stellar_continuum_maps(plt, ifu, daptype, snr, r68, r99, rchi2, signal, a, d
     ax.set_ylim(extent[2:])
     ax.add_patch(map_beam_patch(extent, ax, facecolor='0.7', edgecolor='k', zorder=4))
     ax.text(0.1, 0.95, r'$\log \delta T_n$', horizontalalignment='left',
-            verticalalignment='center', transform=ax.transAxes)
+            verticalalignment='center', transform=ax.transAxes,zorder=4, c='red')
 
     # ------------------------------------------------------------------
     # Stellar velocity
@@ -396,7 +396,7 @@ def stellar_continuum_maps(plt, ifu, daptype, snr, r68, r99, rchi2, signal, a, d
     ax.set_ylim(extent[2:])
     ax.add_patch(map_beam_patch(extent, ax, facecolor='0.7', edgecolor='k', zorder=4))
     ax.text(0.1, 0.95, r'$V_\ast$ (km/s)', horizontalalignment='left',
-            verticalalignment='center', transform=ax.transAxes)
+            verticalalignment='center', transform=ax.transAxes,zorder=4, c='red')
 
     # ------------------------------------------------------------------
     # Stellar sigma
@@ -413,7 +413,7 @@ def stellar_continuum_maps(plt, ifu, daptype, snr, r68, r99, rchi2, signal, a, d
     ax.set_ylim(extent[2:])
     ax.add_patch(map_beam_patch(extent, ax, facecolor='0.7', edgecolor='k', zorder=4))
     ax.text(0.1, 0.95, r'$\sigma_{\rm obs}$ (km/s)', horizontalalignment='left',
-            verticalalignment='center', transform=ax.transAxes)
+            verticalalignment='center', transform=ax.transAxes,zorder=4, c='red')
 
     # ------------------------------------------------------------------
     # Sigma correction
@@ -429,7 +429,7 @@ def stellar_continuum_maps(plt, ifu, daptype, snr, r68, r99, rchi2, signal, a, d
     ax.set_ylim(extent[2:])
     ax.add_patch(map_beam_patch(extent, ax, facecolor='0.7', edgecolor='k', zorder=4))
     ax.text(0.1, 0.95, r'$\sigma_{\rm corr}$ (km/s)', horizontalalignment='left',
-            verticalalignment='center', transform=ax.transAxes)
+            verticalalignment='center', transform=ax.transAxes,zorder=4, c='red')
 
     # ------------------------------------------------------------------
     # Corrected stellar sigma 
@@ -446,7 +446,7 @@ def stellar_continuum_maps(plt, ifu, daptype, snr, r68, r99, rchi2, signal, a, d
     ax.set_ylim(extent[2:])
     ax.add_patch(map_beam_patch(extent, ax, facecolor='0.7', edgecolor='k', zorder=4))
     ax.text(0.1, 0.95, r'$\sigma_\ast$ (km/s)', horizontalalignment='left',
-            verticalalignment='center', transform=ax.transAxes)
+            verticalalignment='center', transform=ax.transAxes,zorder=4, c='red')
 
     if ofile is None:
         pyplot.show()
@@ -475,7 +475,7 @@ def gmr_data(plt, ifu, drpver, redux_path):
 def rdxqa_data(plt, ifu, plan, drpver, dapver, analysis_path):
     # Get the surface brightness and S/N maps from the
     # ReductionAssessments object
-    rdxqa_file = os.path.join(*ReductionAssessment.default_paths(plt, ifu, plan['drpqa_key'],
+    rdxqa_file = os.path.join(*ReductionAssessment.default_paths(plt, ifu, plan['drpqa_key'][0],
                                                                  drpver=drpver, dapver=dapver,
                                                                  analysis_path=analysis_path))
     if not os.path.isfile(rdxqa_file):
@@ -494,9 +494,9 @@ def rdxqa_data(plt, ifu, plan, drpver, dapver, analysis_path):
 def continuum_component_data(plt, ifu, plan, drpver, dapver, analysis_path, signal_map=None,
                              tpl_flux_renorm=None):
     # Get the coefficient data from the StellarContinuumModel object
-    sc_file = os.path.join(*StellarContinuumModel.default_paths(plt, ifu, plan['drpqa_key'],
-                                                                plan['bin_key'],
-                                                                plan['continuum_key'],
+    sc_file = os.path.join(*StellarContinuumModel.default_paths(plt, ifu, plan['drpqa_key'][0],
+                                                                plan['bin_key'][0],
+                                                                plan['continuum_key'][0],
                                                                 drpver=drpver, dapver=dapver,
                                                                 analysis_path=analysis_path))
     hdu = fits.open(sc_file)
@@ -617,7 +617,8 @@ def ppxffit_qa_plot(plt, ifu, plan, drpver=None, redux_path=None, dapver=None, a
                          'manga-{0}-{1}-MAPS-{2}-ppxffit.png'.format(plt, ifu, method))
 
     # Get the g-r map
-    gmr_map = gmr_data(plt, ifu, _drpver, _redux_path)
+    # gmr_map = gmr_data(plt, ifu, _drpver, _redux_path)
+    gmr_map = None
 
     # Get the reduction assessment data
     signal_map, snr_map = rdxqa_data(plt, ifu, plan, _drpver, _dapver, _analysis_path)

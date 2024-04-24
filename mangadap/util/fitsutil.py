@@ -469,7 +469,7 @@ class DAPFitsUtil:
 
 
     @staticmethod
-    def reconstruct_cube(cube_shape, bin_indx, arr, dtype=None):
+    def reconstruct_cube(cube_shape, bin_indx, arr, quiet,dtype=None):
         r"""
         Reconstruct a set of cubes with the specified shape based on a
         set of input 2D arrays.  The cube shape is expected to be

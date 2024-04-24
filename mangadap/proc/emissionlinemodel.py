@@ -1090,7 +1090,7 @@ class EmissionLineModel:
         model_mask = self.hdu['MASK'].data.copy()
 
         flux, base, mask = DAPFitsUtil.reconstruct_cube(self.shape, bin_indx.ravel(),
-                                                        [model_flux, model_base, model_mask])
+                                                        [model_flux, model_base, model_mask],self.quiet)
 
         mask = self._finalize_cube_mask(mask)
 

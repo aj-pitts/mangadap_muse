@@ -190,7 +190,7 @@ def passband_median(x, y, passband=None):
     nonzero = numpy.array([ len(ii) > 0 for ii in indx ])
     if not numpy.all(nonzero):
         warnings.warn('Returning empty passbands with median values of 0!')
-    return numpy.array([ 0.0 if len(ii) == 0 else numpy.ma.median(_y[ii]) for ii in indx ])
+    return numpy.array([ 0.0 if len(ii) == 0 else numpy.ma.median(_y[numpy.asarray(ii,dtype='int')]) for ii in indx ])
 
 
 def pixel_fraction_in_passband(x, passband, dx=None):

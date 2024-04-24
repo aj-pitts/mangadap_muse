@@ -30,7 +30,8 @@ from ..util.sampling import Resample, spectral_coordinate_step
 from matplotlib import pyplot, rc
 import time
 from IPython import embed
-
+import glob
+from astropy.io import ascii
 # Add strict versioning
 # from distutils.version import StrictVersion
 
@@ -476,7 +477,7 @@ class SpectralStack:
         gpm_speci = gpm[speci].astype('float32')
         flux_speci = flux.data[speci].astype('float32')
         gpm_flux_csr_matrix = sparse.csr_matrix(gpm_speci * flux_speci)
-        gpm_fluxsqr_csr_marix = sparse.csr_matrix(numpy.square(gpm_speci * flux_speci))
+        gpm_fluxsqr_csr_matrix = sparse.csr_matrix(numpy.square(gpm_speci * flux_speci))
 
         ivar_speci = ivar[speci].astype('float32')
         gpm_ivar_csr_matrix = sparse.csr_matrix(numpy.ma.divide(gpm_speci, ivar_speci).filled(0.0))
@@ -498,7 +499,7 @@ class SpectralStack:
             new_flux[spec_bin] = sparse.csr_matrix.dot(rt_csr_matrix,
                                                        gpm_flux_csr_matrix).toarray()
             new_fluxsqr[spec_bin] = sparse.csr_matrix.dot(rt_csr_matrix,
-                                               gpm_fluxsqr_csr_marix).toarray()
+                                               gpm_fluxsqr_csr_matrix).toarray()
             if self.ivar is not None:
                 new_ivar[spec_bin] = numpy.ma.power(sparse.csr_matrix.dot(rt_csr_matrix_sq,
                                                          gpm_ivar_csr_matrix).toarray(), -1.)
@@ -533,6 +534,75 @@ class SpectralStack:
         self.fluxsqr[self.npix == 0] = numpy.ma.masked
         if self.ivar is not None:
             self.ivar[self.npix == 0] = numpy.ma.masked
+
+    def beta_func_quad(self,N_spx, a, b):
+        return 1 + a * (numpy.log10(N_spx)) ** b
+
+    def _get_beta_muse(self,wv_lim, S_N, N_spx):
+
+        beta_dir = '/Users/erickaguirre/mangadap/mangadap/proc/beta_tables/'
+
+        beta_file = glob.glob(beta_dir + '*' + str(wv_lim[0]) + '_' + str(wv_lim[1]) + '*.dat')
+        beta_table = ascii.read(beta_file[0])
+        a, b = beta_table['param_fit_a'][0], beta_table['param_fit_b'][0]
+
+        print('Using wavelength segment: {}-{}'.format(wv_lim[0], wv_lim[1]))
+        print('S/N: {}, N_spx: {}'.format(S_N, N_spx))
+        print('------------------'.format(S_N, N_spx))
+
+        SNR_ranges = numpy.array([[0, 50], [50, 75], [75, 100]])
+        N_spx_ranges = numpy.array([3, 9, 25])
+
+        for S_N_range in SNR_ranges:
+            if (S_N > S_N_range[0]) & (S_N < S_N_range[1]):
+                col_name = 'S_N_' + str(S_N_range[0]) + '-' + str(S_N_range[1])
+                beta_col = beta_table[col_name]
+
+                print('using beta table for S/N Range: {}-{}'.format(S_N_range[0], S_N_range[1]))
+
+                if N_spx in N_spx_ranges:
+
+                    col_row = numpy.argwhere(N_spx_ranges == N_spx)
+                    print('  using column row {} for N_spx: {}'.format(col_row[0][0], N_spx))
+                    beta = beta_col[col_row][0][0]
+
+                    if beta == -999:
+                        print('    using Sarzi relation because beta = -999')
+                        print(self.beta_func_quad(N_spx, a, b), '\n')
+                        return self.beta_func_quad(N_spx, a, b)
+
+                    else:
+                        print('    using beta value:{:.4f}\n'.format(beta))
+                        return beta
+
+                else:
+                    print(' using Sarzi relation for N_spx: {}'.format(N_spx))
+                    print(self.beta_func_quad(N_spx, a, b), '\n')
+                    return self.beta_func_quad(N_spx, a, b)
+
+        # if it goes through the entire forloop without returning something use sarzi relationship
+        print('using Sarzi relation for S/N: {}'.format(S_N))
+        print(self.beta_func_quad(N_spx, a, b), '\n')
+        return self.beta_func_quad(N_spx, a, b)
+
+    def _correct_error_muse(self, wv_lim):
+
+        # mean flux and error within input wavelength limits
+        flux_seg = self.fluxmean[:,(self.wave >  wv_lim[0]) & (self.wave <  wv_lim[1])]
+        error_seg = numpy.sqrt(1/self.ivar[:,(self.wave >  wv_lim[0]) & (self.wave <  wv_lim[1])])
+
+        # correct uncertainty in each bin to account for spatial covariance
+        for i in range(self.flux.shape[0]):
+            N_spx = self.npix[i][0]
+            S_N = numpy.median(flux_seg[i]/error_seg[i])
+
+            if numpy.ma.is_masked(S_N) == True or numpy.ma.is_masked(N_spx)==True:
+                continue
+            elif (numpy.isfinite(S_N) == False) or (numpy.isfinite(N_spx) == False):
+                continue
+            else:
+                beta = self._get_beta_muse(wv_lim, S_N, N_spx)
+                self.ivar[i][(self.wave >  wv_lim[0]) & (self.wave <  wv_lim[1])] = 1/(error_seg[i]*beta)**2
 
     def _stack_with_covariance(self, flux, covariance_mode, covar, ivar=None, sres=None):
         """
@@ -1130,7 +1200,7 @@ class SpectralStack:
 
     def stack(self, wave, flux, operation='mean', binid=None, binwgt=None, ivar=None, mask=None,
               sres=None, cz=None, log=False, base=10.0, covariance_mode=None, covar=None,
-              keep_range=False, muse_mode=True): # added a MUSE varaible for now
+              keep_range=False, muse_mode=True): # added a MUSE variable for now
         r"""
         Stack a set of spectra.
 
@@ -1309,6 +1379,13 @@ class SpectralStack:
                                                    self.sres.reshape(1,-1) if self.sres.ndim == 1
                                                         else self.sres.reshape(outshape[0], -1)
                                                    ).reshape(outshape)
+
+        wv_lims = [[4751.42, 5212], [5212, 5672], [5672, 6132], [6132, 6592],
+                   [6592, 7052], [7052, 7513], [7513, 7973], [7973, 8433], [8433, 8893], [8893, 9353.44]]
+
+        if muse_mode == 'true':
+            for wv_lim in wv_lims:
+                self._correct_error_muse(wv_lim)
 
         # Return the stacked data
         if operation == 'sum':

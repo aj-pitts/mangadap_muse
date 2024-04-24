@@ -1626,7 +1626,7 @@ class SpatiallyBinnedSpectra:
         flux, mask, sdev, ivar, npix, sres \
                 = DAPFitsUtil.reconstruct_cube(self.shape, bin_indx.ravel(),
                                                [stack_flux, stack_mask, stack_sdev, stack_ivar,
-                                                stack_npix, stack_sres ])
+                                                stack_npix, stack_sres ],self.quiet)
 
         # TODO: Move this to the Covariance class?
         if self.covariance is not None:

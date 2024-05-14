@@ -242,31 +242,13 @@ if __name__ == '__main__':
     # directory path for test cube NGC0000
     directory_path = os.path.join(os.getcwd(),'data/test_cube_data/')
 
-    # Need to make up plate and ifudesign numbers
+    # Need to make up plate and ifu design numbers
     #plate = 100000
     #ifudesign = 1
 
     # make sure the directory path is correct within the .ini file
     config_file = os.path.join(directory_path,'mangadap-100000-1-LINCUBE.ini')
     #config_file = '/Users/erickaguirre/Desktop/SDSU_Research/Getting_used_to_MaNGA_DAP/mangadap-100000-1-LINCUBE.ini'
-
-
-    #test_read_muse(cubefil, sresfil, directory_path=directory_path, analysis_path='./output',
-    #                  redshift=redshift, objra=objra, objdec=objdec, vdisp=vdisp, ellipticity=ell, pa=pa, reff=reff)
-
-    # Need to add OBJRA and OBJDEC to prihdr -- issues with centering
-    #test_wcs_muse(cubefil, sresfil, directory_path=directory_path, analysis_path='./output',
-    #               redshift=redshift, objra=objra, objdec=objdec, vdisp=vdisp, ellipticity=ell, pa=pa, reff=reff)
-
-    #test_copyto_muse(cubefil, sresfil, directory_path=directory_path, analysis_path='./output',
-    #                    redshift=redshift, objra=objra, objdec=objdec, vdisp=vdisp, ellipticity=ell, pa=pa, reff=reff)
-    #test_stats_muse(cubefil, sresfil, directory_path=directory_path, analysis_path='./output',
-    #                    redshift=redshift, objra=objra, objdec=objdec, vdisp=vdisp, ellipticity=ell, pa=pa, reff=reff)
-
-    #fit_one_cube_muse(cubefil, sresfil, directory_path=directory_path, analysis_path='./output',
-    #                  redshift=redshift, objra=objra, objdec=objdec, vdisp=vdisp,
-    #                  ellipticity=ell, pa=pa, reff=reff, plate=plate, ifudesign=ifudesign,
-    #                  ebvgal=ebvgal)
 
     # when re-running this function make sure to delete the output folders in the analysis path
     # in order for the DAP to rerun properly.

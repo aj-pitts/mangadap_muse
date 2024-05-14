@@ -222,11 +222,11 @@ def fit_one_cube_muse(config_file, directory_path=None, analysis_path=None):
                                           # square spatial binning size options are 0.6, 1.0 and 2.0
                                           bin_key='SQUARE2.0', #'HYB10'
                                           bin_clobber=False,
-                                          continuum_key='MASTARHC2-NOISM',  #'MILESHCMPL11',
+                                          continuum_key='MILESHC-NOISM',  #'MILESHCMPL11',
                                           continuum_clobber=False,
                                           elmom_key='EMOMMPL11',
                                           elmom_clobber=False,
-                                          elfit_key='EFITMPL11SSP', #'EFITMPL9DB',
+                                          elfit_key= 'EFITMPL11-ISMMASK-HCNOISM', #'EFITMPL11SSP', #'EFITMPL9DB',
                                           elfit_clobber=False,
                                           spindex_key='INDXEN',
                                           spindex_clobber=False) ])
@@ -243,57 +243,45 @@ if __name__ == '__main__':
     directory_path = os.path.join(os.getcwd(),'data/test_cube_data/')
 
     # Need to make up plate and ifu design numbers
-    #plate = 100000
-    #ifudesign = 1
+    plate = 100000
+    ifudesign = 1
 
     # make sure the directory path is correct within the .ini file
     config_file = os.path.join(directory_path,'mangadap-100000-1-LINCUBE.ini')
-    #config_file = '/Users/erickaguirre/Desktop/SDSU_Research/Getting_used_to_MaNGA_DAP/mangadap-100000-1-LINCUBE.ini'
 
     # when re-running this function make sure to delete the output folders in the analysis path
     # in order for the DAP to rerun properly.
     #fit_one_cube_muse(config_file, directory_path=directory_path, analysis_path='./output2.0_test_err_corr')
     fit_one_cube_muse(config_file, directory_path=directory_path, analysis_path='./output2.0_test_no_corr')
-    #fit_one_cube_muse(config_file, directory_path=directory_path, analysis_path='./output2.0_NGC4790')
-
-    # Run QA -- note that these plate-ifu numbers do not match those in new config file
+    #fit_one_cube_muse(config_file, directory_path=directory_path, analysis_path='./output2.0_NGC4030')
 
     # daptype='SQUARE2.0-MILESHC-MASTARSSP'
     # #daptype = 'SQUARE0.6-MILESHC-MASTARSSP'
     # dapver='2.2.3dev'
     # drpver ='v3_0_1'
-    # maps_file = '/Users/erickaguirre/mangadap/examples/output2.0_test/SQUARE2.0-MILESHC-MASTARSSP/100000/1/manga-100000-1-MAPS-SQUARE2.0-MILESHC-MASTARSSP.fits.gz'
-    # model_file = '/Users/erickaguirre/mangadap/examples/output2.0_test/SQUARE2.0-MILESHC-MASTARSSP/100000/1/manga-100000-1-LOGCUBE-SQUARE2.0-MILESHC-MASTARSSP.fits.gz'
+    # drpver = '3.1.3dev'
 
     # #spotcheck_images('./output2.0_test_merge', daptype, plate, ifudesign, ofile=None, drpver=None, dapver=None)
-    #
-    # plan = AnalysisPlanSet([ AnalysisPlan(drpqa_key='SNRG',
-    #                                       drpqa_clobber=False,
-    #                                       bin_key='SQUARE2.0', #HYB10', #SQUARE2.0
-    #                                       bin_clobber=False,
-    #                                       continuum_key='MILESHCMPL11',
-    #                                       continuum_clobber=False,
-    #                                       elmom_key='EMOMMPL11',
-    #                                       elmom_clobber=False,
-    #                                       elfit_key='EFITMPL11SSP', #'EFITMPL9DB',
-    #                                       elfit_clobber=False,
-    #                                       spindex_key='INDXEN',
-    #                                       spindex_clobber=False) ])
 
-    # # redux_path = '/Users/erickaguirre/mangadap/examples/' #drpall-v3_0_1.fits
-    # redux_path = '/Users/erickaguirre/Desktop/SDSU_Research/Getting_used_to_MaNGA_DAP/'
-    # #cube_path = 'output0.6_test_err_corr/SQUARE2.0-MILESHC-MASTARSSP/100000/1/'
-    # cubefil = '/Users/erickaguirre/mangadap/examples/output2.0_test_err_corr/SQUARE2.0-MILESHC-MASTARSSP/100000/1/manga-100000-1-LOGCUBE-SQUARE2.0-MILESHC-MASTARSSP.fits '
-    # # ppxffit_qa_plot(plate, ifudesign, plan, drpver=drpver, redux_path=redux_path, dapver=None, analysis_path='./output2.0_test_merge',
-    # #               tpl_flux_renorm=None,cube_path=cubefil)
-    # drpver = '3.1.3dev'
-    #
-    # ppxffit_qa_plot(plate, ifudesign, plan, drpver=None, redux_path=redux_path, dapver=None, analysis_path='./output2.0_test_err_corr',
-    #               tpl_flux_renorm=None)
+    # Define how you want to analyze the data for the inspection plot
+    plan = AnalysisPlanSet([ AnalysisPlan(drpqa_key='SNRG',
+                                          drpqa_clobber=False,
+                                          # square spatial binning size options are 0.6, 1.0 and 2.0
+                                          bin_key='SQUARE2.0', #'HYB10'
+                                          bin_clobber=False,
+                                          continuum_key='MILESHC-NOISM',  #'MILESHCMPL11',
+                                          continuum_clobber=False,
+                                          elmom_key='EMOMMPL11',
+                                          elmom_clobber=False,
+                                          elfit_key= 'EFITMPL11-ISMMASK-HCNOISM', #'EFITMPL11SSP', #'EFITMPL9DB',
+                                          elfit_clobber=False,
+                                          spindex_key='INDXEN',
+                                          spindex_clobber=False) ])
 
-    # # Need to make up plate and ifudesign numbers
-    # plate = 1
-    # ifudesign = 1
+    # redux path is the directory path containing the original unprocessed MUSE cube
+    redux_path = directory_path
+    ppxffit_qa_plot(plate, ifudesign, plan, drpver=None, redux_path=redux_path, dapver=None, analysis_path='./output2.0_test_no_corr',
+                  tpl_flux_renorm=None)
 
     #fit_residuals_muse(dapver, './output2.0_NGC4030', daptype, plate, ifudesign)
     #manga_dap_inspector(maps_file, model_file, ext=None, masked_spectra=True)

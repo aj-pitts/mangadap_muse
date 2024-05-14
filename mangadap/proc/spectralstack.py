@@ -1383,7 +1383,7 @@ class SpectralStack:
         wv_lims = [[4751.42, 5212], [5212, 5672], [5672, 6132], [6132, 6592],
                    [6592, 7052], [7052, 7513], [7513, 7973], [7973, 8433], [8433, 8893], [8893, 9353.44]]
 
-        if muse_mode == 'true':
+        if muse_mode == 'false':
             for wv_lim in wv_lims:
                 self._correct_error_muse(wv_lim)
 

@@ -61,14 +61,11 @@ def fit_one_cube_muse(config_file, analysis_plan, directory_path=None, analysis_
                Object with the analysis plans to implement.
 
            directory_path (str):
-               Direct path to directory containing the DRP output file;
-               default is defined by
-               :func:`mangadap.config.defaults.drp_directory_path`
+                Path to directory containing the MUSE cube file.
 
            analysis_path (str):
                Top-level directory for the DAP output data; default is
-               defined by
-               :func:`mangadap.config.defaults.dap_analysis_path`.
+               defined by :func:`mangadap.config.defaults.dap_analysis_path`.
 
        Returns:
            manga_dap (:func:`mangadap.survey.manga_dap.manga_dap`):
@@ -97,18 +94,28 @@ if __name__ == '__main__':
     config_fil = os.path.join(directory_path,'mangadap-100000-1-LINCUBE.ini')
 
     # Define how you want to analyze the data
-    plan = AnalysisPlanSet([ AnalysisPlan(drpqa_key='SNRG',
+    plan = AnalysisPlanSet([ AnalysisPlan(drpqa_key='SNRG', # Data reduction quality assessment
+                                          # Overwrite existing data-quality assessment reference files
                                           drpqa_clobber=False,
-                                          # square spatial binning size options are 0.6, 1.0 and 2.0
-                                          bin_key='SQUARE2.0', #'HYB10'
+                                          # Spatial binning method keyword
+                                          bin_key='SQUARE2.0', # SQUARE bin size options are 0.6, 1.0 and 2.0
+                                          # Overwrite any existing spatial binning reference files
                                           bin_clobber=False,
-                                          continuum_key='MILESHC-NOISM',  #'MILESHCMPL11',
+                                          # Stellar-continuum fitting method keyword
+                                          continuum_key='MILESHC-NOISM',
+                                          # Overwrite any existing stellar-continuum fitting reference files
                                           continuum_clobber=False,
+                                          # Emission-line moments measurement method keyword
                                           elmom_key='EMOMMPL11',
+                                          # Overwrite any existing emission-line moments reference files
                                           elmom_clobber=False,
-                                          elfit_key= 'EFITMPL11-ISMMASK-HCNOISM', #'EFITMPL11SSP', #'EFITMPL9DB',
+                                          # Emission-line modeling method keyword
+                                          elfit_key= 'EFITMPL11-ISMMASK-HCNOISM',
+                                          # Overwrite any existing emission-line modeling reference files
                                           elfit_clobber=False,
+                                          # Spectral-index measurement method keyword
                                           spindex_key='INDXEN',
+                                          # Overwrite any existing spectral-index reference files
                                           spindex_clobber=False) ])
 
     # when re-running this function make sure to delete the output folders in the analysis path
@@ -125,8 +132,7 @@ if __name__ == '__main__':
     # #spotcheck_images('./output2.0_test_merge', daptype, plate, ifudesign, ofile=None, drpver=None, dapver=None)
 
     # redux path is the directory path containing the original unprocessed MUSE cube
-    redux_path = directory_path
-    ppxffit_qa_plot(plate, ifudesign, plan, drpver=None, redux_path=redux_path, dapver=None, analysis_path='./output2.0_test_no_corr',
+    ppxffit_qa_plot(plate, ifudesign, plan, drpver=None, redux_path=directory_path, dapver=None, analysis_path='./output2.0_test_no_corr',
                   tpl_flux_renorm=None)
 
     #fit_residuals_muse(dapver, './output2.0_NGC4030', daptype, plate, ifudesign)

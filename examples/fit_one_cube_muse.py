@@ -14,7 +14,7 @@ from mangadap.scripts.spotcheck_dap_maps import spotcheck_images
 from mangadap.scripts.ppxffit_qa import ppxffit_qa_plot
 from mangadap.scripts.fit_residuals_muse import fit_residuals_muse
 from mangadap.scripts.manga_dap_inspector import manga_dap_inspector
-from IPython import embed
+
 
 #-----------------------------------------------------------------------------
 def fit_one_cube_muse(config_file, analysis_plan, directory_path=None, analysis_path=None):

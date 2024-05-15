@@ -57,12 +57,12 @@ def fit_one_cube_muse(config_file, analysis_plan, directory_path=None, analysis_
            analysis_plan (:class:`mangadap.par.analysisplan.AnalysisPlanSet`):
                Object with the analysis plans to implement.
 
-           directory_path (:obj:`str`, optional):
+           directory_path (str):
                Direct path to directory containing the DRP output file;
                default is defined by
                :func:`mangadap.config.defaults.drp_directory_path`
 
-           analysis_path (:obj:`str`, optional):
+           analysis_path (str):
                Top-level directory for the DAP output data; default is
                defined by
                :func:`mangadap.config.defaults.dap_analysis_path`.

@@ -6,7 +6,6 @@ import numpy
 import astropy.constants
 from astropy.io import fits
 
-from mangadap.datacube import MaNGADataCube
 from mangadap.datacube import MUSEDataCube
 from mangadap.survey.manga_dap import manga_dap
 from mangadap.par.analysisplan import AnalysisPlan, AnalysisPlanSet
@@ -19,7 +18,60 @@ from IPython import embed
 
 #-----------------------------------------------------------------------------
 def fit_one_cube_muse(config_file, analysis_plan, directory_path=None, analysis_path=None):
+    r"""
+       Custom wrapper function to execute the MaNGA DAP on MUSE cubes.
 
+       This function is designed to be called once per datacube. The
+       :class:`mangadap.par.analysisplan.AnalysisPlanSet` instance sets
+       the types of analyses to perform on this observation. Each
+       analysis plan results in a MAPS and model LOGCUBE file.
+
+       The procedure is as follows.  For each plan in ``analysis_plan``:
+
+           - Determine basic assessments of the data, including the S/N
+             and spaxel coordinates. See
+             :class:`mangadap.proc.reductionassessments.ReductionAssessment`.
+           - Bin the spectra. See
+             :class:`mangadap.proc.spatiallybinnedspectra.SpatiallyBinnedSpectra`.
+           - Fit the stellar continuum for stellar kinematics. See
+             :class:`mangadap.proc.stellarcontinuummodel.StellarContinuumModel`.
+           - Measure the emission-line moments. See
+             :class:`mangadap.proc.emissionlinemoments.EmissionLineMoments`.
+           - Fit parameterized line profiles to the emission lines. See
+             :class:`mangadap.proc.emissionlinemodel.EmissionLineModel`.
+           - Subtract the fitted emission-line models and measure the
+             spectral indices. See
+             :class:`mangadap.proc.spectralindices.SpectralIndices`.
+           - Construct the primary output files based on the plan
+             results. See :func:`mangadap.dapfits.construct_maps_file`
+             and :func:`mangadap.dapfits.construct_cube_file`.
+
+       Verbose levels (still under development):
+           0. Nothing but errors.
+           1. Basic status updates. E.g., start and end of each block,
+              minor progress within blocks.
+           2. Block-level and sub-function updates.
+           3. Same as above, with figures.
+
+       Args:
+           analysis_plan (:class:`mangadap.par.analysisplan.AnalysisPlanSet`):
+               Object with the analysis plans to implement.
+
+           directory_path (:obj:`str`, optional):
+               Direct path to directory containing the DRP output file;
+               default is defined by
+               :func:`mangadap.config.defaults.drp_directory_path`
+
+           analysis_path (:obj:`str`, optional):
+               Top-level directory for the DAP output data; default is
+               defined by
+               :func:`mangadap.config.defaults.dap_analysis_path`.
+
+       Returns:
+           manga_dap (:func:`mangadap.survey.manga_dap.manga_dap`):
+                Wrapper function that runs the DAP entirely.
+    """
+    # mask the first pixel in the cube
     cube = MUSEDataCube.from_config(config_file)
     cube.mask[0,0,:] = True
 

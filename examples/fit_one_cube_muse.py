@@ -54,6 +54,9 @@ def fit_one_cube_muse(config_file, analysis_plan, directory_path=None, analysis_
            3. Same as above, with figures.
 
        Args:
+            config_file (str):
+                Configuration file containing the initial galaxy inputs.
+
            analysis_plan (:class:`mangadap.par.analysisplan.AnalysisPlanSet`):
                Object with the analysis plans to implement.
 
@@ -110,7 +113,7 @@ if __name__ == '__main__':
 
     # when re-running this function make sure to delete the output folders in the analysis path
     # in order for the DAP to rerun properly.
-    fit_one_cube_muse(config_fil, plan ,directory_path=directory_path, analysis_path='./output2.0_test_no_corr')
+    fit_one_cube_muse(config_fil, plan, directory_path=directory_path, analysis_path='./output2.0_test_no_corr')
     #fit_one_cube_muse(config_file, directory_path=directory_path, analysis_path='./output2.0_test_err_corr')
     #fit_one_cube_muse(config_file, directory_path=directory_path, analysis_path='./output2.0_NGC4030')
 

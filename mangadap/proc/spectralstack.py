@@ -16,7 +16,7 @@ Stack some spectra!
 """
 
 
-
+import os
 import numpy
 from scipy import sparse, interpolate
 from astropy.io import fits
@@ -26,6 +26,7 @@ from ..par.parset import KeywordParSet
 from ..util.covariance import Covariance
 from ..util.filter import interpolate_masked_vector
 from ..util.sampling import Resample, spectral_coordinate_step
+from ..config import defaults
 
 from matplotlib import pyplot, rc
 import time
@@ -47,7 +48,7 @@ class SpectralStackPar(KeywordParSet):
 
     .. include:: ../tables/spectralstackpar.rst
     """
-    def __init__(self, operation=None, register=None, cz=None, covar_mode=None, covar_par=None):
+    def __init__(self, operation=None, register=None, cz=None, covar_mode=None, covar_par=None,beta_corr=None):
         in_fl = [ int, float ]
         ar_like = [ numpy.ndarray, list ]
         op_options = SpectralStack.operation_options()
@@ -536,13 +537,60 @@ class SpectralStack:
             self.ivar[self.npix == 0] = numpy.ma.masked
 
     def beta_func_quad(self,N_spx, a, b):
+        r"""
+        The Sarzi+2018 quadractic function used to determine
+        the correlation ratio for a given number of spaxels
+        in a bin.
+
+        Args:
+            N_spx (:obj:`int`):
+                Number of spaxels in each input bin.
+            a (:obj:`float`):
+                Input parameter value from beta table .dat file
+            b (:obj:`float`):
+                Input parameter value from beta table .dat file
+
+        Returns: (:obj:`float`):
+                Derived correlation ratio for correcting
+                the inverse variance.
+        """
         return 1 + a * (numpy.log10(N_spx)) ** b
 
-    def _get_beta_muse(self,wv_lim, S_N, N_spx):
+    def _get_beta_muse(self,beta_dir,wv_lim, S_N, N_spx):
+        r"""
+        Function to determine which correlation ratio value to use. Input directory
+        indicates which beta table subdirectory to employ while input wavelength range
+        points to which .dat file to use. Within the .dat file, the S/N bin columns
+        and N_spx bin rows are utilized to pinpoint the correct correlation ratio value
+        for a given input S/N and N_spx value combination.
 
-        beta_dir = '/Users/erickaguirre/mangadap/mangadap/proc/beta_tables/'
+        If the specific S/N and N_spx combination is not found from the .dat file then
+        a correlation ratio is derived using the Sarzi+2018 quadratic relationship. The
+        parameters used in the Sarzi relation is found within the .dat file itself.
+        To view the structure of the quadratic function see :func: `beta_func_quad`.
 
-        beta_file = glob.glob(beta_dir + '*' + str(wv_lim[0]) + '_' + str(wv_lim[1]) + '*.dat')
+        Args:
+            beta_dir (:obj:`str`):
+                Directory name for specific beta table subdirectory to use.
+            wv_lim (:obj:`list`):
+                List containing two `float` values used as the
+                wavelength range to extract the specific correlation ratio.
+            S_N (:obj:`float`):
+                Median S/N value for the input wavelength range
+            N_spx (:obj:`int`):
+                Number of spaxels in each input bin.
+
+        Returns: beta (:obj:`float`):
+                Correlation ratio to be used for correcting the inverse variance.
+                Can be drawn from either the specifc beta_table .dat file or
+                calculated using the Sarzi+2018 quadratic function.
+        """
+
+        beta_table_path = os.path.join(defaults.dap_data_root(),'beta_tables/'+beta_dir+'/')
+        if not os.path.isdir(beta_table_path):
+            raise ValueError('{0} is not a directory!'.format(beta_table_path))
+
+        beta_file = glob.glob(beta_table_path + '*' + str(wv_lim[0]) + '_' + str(wv_lim[1]) + '*.dat')
         beta_table = ascii.read(beta_file[0])
         a, b = beta_table['param_fit_a'][0], beta_table['param_fit_b'][0]
 
@@ -585,8 +633,23 @@ class SpectralStack:
         print(self.beta_func_quad(N_spx, a, b), '\n')
         return self.beta_func_quad(N_spx, a, b)
 
-    def _correct_error_muse(self, wv_lim):
+    def _correct_error_muse(self, beta_dir, wv_lim):
+        r"""
+        An alternative method to account for the spatial covariance that
+        differs from the available covariance methods.A specific correlation
+        ratio (beta) used to correct the inverse variance based on the S/N in
+        each wavelength segment (wv_lim) and the number of spaxels (N_spx)
+        in each bin. The specific correlation ratio value is drawn from a .dat file
+        residing in the directory `manga.data.beta_tables`. For more information on
+        how the correlation ratio value is determined see :func:`_get_beta_muse`.
 
+        Args:
+            beta_dir (:obj:`str`):
+                Directory name for specific beta table subdirectory to use.
+            wv_lim (:obj:`list`):
+                List containing two `float` values used as the
+                wavelength range to extract the specific correlation ratio.
+        """
         # mean flux and error within input wavelength limits
         flux_seg = self.fluxmean[:,(self.wave >  wv_lim[0]) & (self.wave <  wv_lim[1])]
         error_seg = numpy.sqrt(1/self.ivar[:,(self.wave >  wv_lim[0]) & (self.wave <  wv_lim[1])])
@@ -601,8 +664,8 @@ class SpectralStack:
             elif (numpy.isfinite(S_N) == False) or (numpy.isfinite(N_spx) == False):
                 continue
             else:
-                beta = self._get_beta_muse(wv_lim, S_N, N_spx)
-                self.ivar[i][(self.wave >  wv_lim[0]) & (self.wave <  wv_lim[1])] = 1/(error_seg[i]*beta)**2
+                beta = self._get_beta_muse(beta_dir, wv_lim, S_N, N_spx)
+                self.ivar[i][(self.wave >=  wv_lim[0]) & (self.wave <=  wv_lim[1])] = 1/(error_seg[i]*beta)**2
 
     def _stack_with_covariance(self, flux, covariance_mode, covar, ivar=None, sres=None):
         """
@@ -1115,7 +1178,6 @@ class SpectralStack:
             covariance_mode = 'none'
         if covariance_mode == 'none':
             return None
-        
         if covariance_mode == 'calibrate':
             return covariance_par
 
@@ -1196,11 +1258,12 @@ class SpectralStack:
                     if par is None else \
                     self.stack(cube.wave, flux, operation=par['operation'], binid=binid, ivar=ivar,
                                sres=sres, cz=par['cz'], log=True,
-                               covariance_mode=par['covar_mode'], covar=covar, keep_range=True)
+                               covariance_mode=par['covar_mode'], covar=covar, keep_range=True,
+                               beta_corr=cube.beta_corr, beta_dir=cube.beta_dir)
 
     def stack(self, wave, flux, operation='mean', binid=None, binwgt=None, ivar=None, mask=None,
               sres=None, cz=None, log=False, base=10.0, covariance_mode=None, covar=None,
-              keep_range=False, muse_mode=True): # added a MUSE variable for now
+              keep_range=False, muse_mode=True,beta_corr=False,beta_dir=None): # added a MUSE variable for now
         r"""
         Stack a set of spectra.
 
@@ -1267,6 +1330,13 @@ class SpectralStack:
             keep_range (:obj:`float`, optional):
                 When registering the wavelengths of the shifted spectra,
                 keep the identical spectral range as input.
+            beta_corr (:obj:`bool`, optional):
+                Option to use a correlation ratio to account for the spatial covariance
+                in each bin ID. If True, beta tables are used for the correction.
+                See :func:`_correct_error_muse`.
+            beta_dir (:obj:`str`,optional):
+                Directory name to specify which beta table data to use. The correlation ratio to use
+                is based on S/N and number of spaxels in each bin. See :func:`_correct_error_muse`.
 
         Returns:
             :obj:`tuple`: Returns seven objects: the wavelength
@@ -1324,8 +1394,6 @@ class SpectralStack:
             raise ValueError('Unrecognized method for covariance: {0}'.format(covariance_mode))
         if covariance_mode is None:
             covariance_mode = 'none'
-        if muse_mode is True:
-            muse_mode = 'true'
         if not SpectralStack._check_covariance_type(covariance_mode, covar, ivar):
             raise TypeError('Incorrect covariance and/or inverse variance object type for input ' \
                             'mode:\n mode: {0}\n input covar type: {1}\n input ivar' \
@@ -1355,7 +1423,7 @@ class SpectralStack:
 
         # Stack the spectra with or without covariance
         if covariance_mode == 'none':
-            if muse_mode == 'true':
+            if muse_mode is True:
                 self._stack_without_covariance_muse(_flux, ivar=_ivar, sres=_sres)
             else:
                 self._stack_without_covariance(_flux, ivar=_ivar, sres=_sres)
@@ -1379,13 +1447,12 @@ class SpectralStack:
                                                    self.sres.reshape(1,-1) if self.sres.ndim == 1
                                                         else self.sres.reshape(outshape[0], -1)
                                                    ).reshape(outshape)
-
-        wv_lims = [[4751.42, 5212], [5212, 5672], [5672, 6132], [6132, 6592],
-                   [6592, 7052], [7052, 7513], [7513, 7973], [7973, 8433], [8433, 8893], [8893, 9353.44]]
-
-        if muse_mode == 'false':
+        if beta_corr is True:
+            # wavelengths segments to loop over when correcting for ivar.
+            wv_lims = [[4751.42, 5212], [5212, 5672], [5672, 6132], [6132, 6592],
+                       [6592, 7052], [7052, 7513], [7513, 7973], [7973, 8433], [8433, 8893], [8893, 9353.44]]
             for wv_lim in wv_lims:
-                self._correct_error_muse(wv_lim)
+                self._correct_error_muse(beta_dir,wv_lim)
 
         # Return the stacked data
         if operation == 'sum':

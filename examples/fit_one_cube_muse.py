@@ -1,20 +1,15 @@
 #!/usr/bin/env python3
 
 import os
-import numpy
-
-import astropy.constants
-from astropy.io import fits
-
 from mangadap.datacube import MUSEDataCube
 from mangadap.survey.manga_dap import manga_dap
 from mangadap.par.analysisplan import AnalysisPlan, AnalysisPlanSet
-from mangadap.proc.reductionassessments import available_reduction_assessments
-from mangadap.scripts.spotcheck_dap_maps import spotcheck_images
+#from mangadap.proc.reductionassessments import available_reduction_assessments
+#from mangadap.scripts.spotcheck_dap_maps import spotcheck_images
 from mangadap.scripts.ppxffit_qa import ppxffit_qa_plot
-from mangadap.scripts.fit_residuals_muse import fit_residuals_muse
-from mangadap.scripts.manga_dap_inspector import manga_dap_inspector
-from IPython import embed
+#from mangadap.scripts.fit_residuals_muse import fit_residuals_muse
+#from mangadap.scripts.manga_dap_inspector import manga_dap_inspector
+#from IPython import embed
 
 
 #-----------------------------------------------------------------------------

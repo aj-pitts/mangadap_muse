@@ -4,11 +4,7 @@ import os
 from mangadap.datacube import MUSEDataCube
 from mangadap.survey.manga_dap import manga_dap
 from mangadap.par.analysisplan import AnalysisPlan, AnalysisPlanSet
-#from mangadap.proc.reductionassessments import available_reduction_assessments
-#from mangadap.scripts.spotcheck_dap_maps import spotcheck_images
 from mangadap.scripts.ppxffit_qa import ppxffit_qa_plot
-#from mangadap.scripts.fit_residuals_muse import fit_residuals_muse
-#from mangadap.scripts.manga_dap_inspector import manga_dap_inspector
 #from IPython import embed
 
 
@@ -134,16 +130,3 @@ if __name__ == '__main__':
                   tpl_flux_renorm=None)
     #fit_one_cube_muse(config_file, directory_path=directory_path, analysis_path='./output2.0_test_err_corr')
     #fit_one_cube_muse(config_file, directory_path=directory_path, analysis_path='./output2.0_NGC4030')
-
-    # daptype='SQUARE2.0-MILESHC-MASTARSSP'
-    # #daptype = 'SQUARE0.6-MILESHC-MASTARSSP'
-    # dapver='2.2.3dev'
-    # drpver ='v3_0_1'
-    # drpver = '3.1.3dev'
-    # #spotcheck_images('./output2.0_test_merge', daptype, plate, ifudesign, ofile=None, drpver=None, dapver=None)
-
-    # redux path is the directory path containing the original unprocessed MUSE cube
-
-
-    #fit_residuals_muse(dapver, './output2.0_NGC4030', daptype, plate, ifudesign)
-    #manga_dap_inspector(maps_file, model_file, ext=None, masked_spectra=True)

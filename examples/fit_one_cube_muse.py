@@ -14,6 +14,7 @@ from mangadap.scripts.spotcheck_dap_maps import spotcheck_images
 from mangadap.scripts.ppxffit_qa import ppxffit_qa_plot
 from mangadap.scripts.fit_residuals_muse import fit_residuals_muse
 from mangadap.scripts.manga_dap_inspector import manga_dap_inspector
+from IPython import embed
 
 
 #-----------------------------------------------------------------------------
@@ -83,7 +84,7 @@ def fit_one_cube_muse(config_file, analysis_plan, directory_path=None, analysis_
 
 if __name__ == '__main__':
 
-    # directory path for test cube NGC0000
+    # directory path for test cube NGC0000.fits
     directory_path = os.path.join(os.getcwd(),'data/test_cube_data/')
 
     # Need to make up plate and ifu design numbers
@@ -91,36 +92,51 @@ if __name__ == '__main__':
     ifudesign = 1
 
     # make sure the directory path is correct within the .ini file
-    config_fil = os.path.join(directory_path,'mangadap-100000-1-LINCUBE.ini')
+    config_fil = os.path.join(directory_path, 'mangadap-100000-1-LINCUBE.ini')
+    # config file that implements correlation ratio correction.
+    config_fil_beta = os.path.join(directory_path,'mangadap-100000-1-LINCUBE-BETA.ini')
 
-    # Define how you want to analyze the data
+    # Define how you want to analyze the data [include more descriptive definitions]
     plan = AnalysisPlanSet([ AnalysisPlan(drpqa_key='SNRG', # Data reduction quality assessment
                                           # Overwrite existing data-quality assessment reference files
-                                          drpqa_clobber=False,
+                                          drpqa_clobber=True,
                                           # Spatial binning method keyword
                                           bin_key='SQUARE2.0', # SQUARE bin size options are 0.6, 1.0 and 2.0
                                           # Overwrite any existing spatial binning reference files
-                                          bin_clobber=False,
+                                          bin_clobber=True,
                                           # Stellar-continuum fitting method keyword
                                           continuum_key='MILESHC-NOISM',
                                           # Overwrite any existing stellar-continuum fitting reference files
-                                          continuum_clobber=False,
+                                          continuum_clobber=True,
                                           # Emission-line moments measurement method keyword
                                           elmom_key='EMOMMPL11',
                                           # Overwrite any existing emission-line moments reference files
-                                          elmom_clobber=False,
+                                          elmom_clobber=True,
                                           # Emission-line modeling method keyword
                                           elfit_key= 'EFITMPL11-ISMMASK-HCNOISM',
                                           # Overwrite any existing emission-line modeling reference files
-                                          elfit_clobber=False,
+                                          elfit_clobber=True,
                                           # Spectral-index measurement method keyword
                                           spindex_key='INDXEN',
                                           # Overwrite any existing spectral-index reference files
-                                          spindex_clobber=False) ])
+                                          spindex_clobber=True) ])
+    
+    # main directory name to hold both the corrected and non-corrected MUSE data
+    output_dir = './output2.0_test/'
+    # make the main directory if there isn't one already
+    if not os.path.isdir(output_dir):
+        os.makedirs(output_dir)
 
-    # when re-running this function make sure to delete the output folders in the analysis path
-    # in order for the DAP to rerun properly.
-    fit_one_cube_muse(config_fil, plan, directory_path=directory_path, analysis_path='./output2.0_test_no_corr')
+    # run the DAP
+    fit_one_cube_muse(config_fil, plan, directory_path=directory_path, analysis_path=output_dir+'2.0_test_no_corr')
+    ppxffit_qa_plot(plate, ifudesign, plan, drpver=None, redux_path=directory_path, dapver=None,
+                    analysis_path=output_dir+'2.0_test_no_corr',
+                    tpl_flux_renorm=None)
+
+    fit_one_cube_muse(config_fil_beta,plan,directory_path=directory_path,analysis_path=output_dir+'2.0_test_beta_corr')
+    ppxffit_qa_plot(plate, ifudesign, plan, drpver=None, redux_path=directory_path, dapver=None,
+                    analysis_path=output_dir+'2.0_test_beta_corr',
+                  tpl_flux_renorm=None)
     #fit_one_cube_muse(config_file, directory_path=directory_path, analysis_path='./output2.0_test_err_corr')
     #fit_one_cube_muse(config_file, directory_path=directory_path, analysis_path='./output2.0_NGC4030')
 
@@ -132,8 +148,7 @@ if __name__ == '__main__':
     # #spotcheck_images('./output2.0_test_merge', daptype, plate, ifudesign, ofile=None, drpver=None, dapver=None)
 
     # redux path is the directory path containing the original unprocessed MUSE cube
-    ppxffit_qa_plot(plate, ifudesign, plan, drpver=None, redux_path=directory_path, dapver=None, analysis_path='./output2.0_test_no_corr',
-                  tpl_flux_renorm=None)
+
 
     #fit_residuals_muse(dapver, './output2.0_NGC4030', daptype, plate, ifudesign)
     #manga_dap_inspector(maps_file, model_file, ext=None, masked_spectra=True)

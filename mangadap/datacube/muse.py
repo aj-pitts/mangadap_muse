@@ -91,11 +91,20 @@ class MUSEDataCube(DataCube):
             generating the covariance matrix directly for an
             arbitrary wavelength channel using the RSS file, see
             :func:`mangadap.datacube.datacube.DataCube.covariance_matrix`.
+        beta_corr (:obj:`bool`, optional):
+            Option to use a correlation ratio to account for the spatial
+            covariance in each bin ID. If True, beta tables are used for
+            the correction.
+            See :func:`mangadap.proc.spectralstack._correct_error_muse`.
+        beta_dir (:obj:`str`,optional):
+            Directory name to specify which beta table data to use.
+            The correlation ratio to use is based on S/N and number of
+            spaxels in each bin.
+            See :func:`mangadap.proc.spectralstack._correct_error_muse`.
     """
     def __init__(self, ifile, objra=None, objdec=None, z=None, vdisp=None, ell=None, \
-                 pa=None, reff=None, sres_ifile=None,
-                 sres_fill=True, covar_ext=None, plate=None, ifudesign=None, ebvgal=None):
-
+                 pa=None, reff=None, sres_ifile=None,sres_fill=True, covar_ext=None,
+                 beta_corr=None,beta_dir=None,plate=None, ifudesign=None, ebvgal=None):
 
         if not os.path.isfile(ifile):
             raise FileNotFoundError('File does not exist: {0}'.format(ifile))
@@ -104,6 +113,8 @@ class MUSEDataCube(DataCube):
         self.plate = plate
         self.ifudesign = ifudesign
         self.drpver = '0v0'
+        self.beta_corr = beta_corr
+        self.beta_dir = beta_dir
 
         # Collect the metadata into a dictionary
         meta = {}
@@ -344,6 +355,8 @@ class MUSEDataCube(DataCube):
         kwargs['sres_ifile'] = sresfil
         kwargs['sres_fill'] = cfg.getbool('sres_fill', default=True)
         kwargs['covar_ext'] = cfg.get('covar_ext', default=None)
+        kwargs['beta_corr'] = cfg.getbool('beta_corr',default=False)
+        kwargs['beta_dir'] = cfg.get('beta_dir',default=None)
         kwargs['vdisp'] = cfg.getfloat('vdisp')
         kwargs['ell'] = cfg.getfloat('ell')
         kwargs['pa'] = cfg.getfloat('pa')

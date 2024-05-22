@@ -5,8 +5,8 @@ from mangadap.datacube import MUSEDataCube
 from mangadap.survey.manga_dap import manga_dap
 from mangadap.par.analysisplan import AnalysisPlan, AnalysisPlanSet
 from mangadap.scripts.ppxffit_qa import ppxffit_qa_plot
-#from IPython import embed
-
+from IPython import embed
+embed()
 
 #-----------------------------------------------------------------------------
 def fit_one_cube_muse(config_file, analysis_plan, directory_path=None, analysis_path=None):

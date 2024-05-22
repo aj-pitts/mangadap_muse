@@ -903,7 +903,7 @@ class Covariance:
         if self.dim == 2 or channel is not None:
             return self.full(channel=channel).toarray()
         
-        arr = numpy.empty(self.shape, dtype=numpy.float)
+        arr = numpy.empty(self.shape, dtype=float)
         for k in range(self.shape[-1]):
             indx = k if self.input_indx is None else self.input_indx[k]
             arr[:,:,k] = self.full(channel=indx).toarray()
@@ -1334,7 +1334,7 @@ class Covariance:
             self.var = ( sparse.diags(cov.flatten()).toarray() ).copy()
             return self.var
 
-        self.var = numpy.empty(self.shape[1:], dtype=numpy.float)
+        self.var = numpy.empty(self.shape[1:], dtype=float)
         for p in range(self.shape[-1]):
             # replaced numpy.diagflat with sparse.diags due to memory allocation error from MUSE cube.
             # self.var[:,p] = numpy.diag(self.cov[p].toarray()).copy()
@@ -1477,7 +1477,7 @@ class Covariance:
             oi = numpy.arange(nspec)[indx]
             oi_i, oi_j = map( lambda x: x.ravel(), numpy.meshgrid(oi, oi) )
 
-            _covar = numpy.zeros((nspec, nspec), dtype=numpy.float)
+            _covar = numpy.zeros((nspec, nspec), dtype=float)
             _covar[oi_i, oi_j] = self.toarray(channel=j)[ii_i,ii_j]
             spaxel_covar[i] = sparse.triu(_covar).tocsr()
 
@@ -1561,7 +1561,7 @@ class Covariance:
             oi = unique_bins[1:]
             oi_i, oi_j = map( lambda x: x.ravel(), numpy.meshgrid(oi, oi) )
 
-            _covar = numpy.zeros((nbins, nbins), dtype=numpy.float)
+            _covar = numpy.zeros((nbins, nbins), dtype=float)
             _covar[oi_i, oi_j] = self.toarray(channel=j)[ii_i,ii_j]
             bin_covar[i] = sparse.triu(_covar).tocsr()
         return Covariance(bin_covar, input_indx=self.input_indx)

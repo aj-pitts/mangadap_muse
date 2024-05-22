@@ -690,10 +690,10 @@ class SquareBinning(SpatialBinning):
         ctbin = 0
 
         # Start from the center, work out to edge of each quadrant
-        # changed line 695,696 from numpy.ceil((maxx) / binsz) to numpy.int(numpy.ceil((maxx) / binsz)) -E.A
+        # changed line 695,696 from numpy.ceil((maxx) / binsz) to int(numpy.ceil((maxx) / binsz)) -E.A
         # Quadrant 1
-        nslicex = numpy.int(numpy.ceil((maxx) / binsz))
-        nslicey = numpy.int(numpy.ceil((maxy) / binsz))
+        nslicex = int(numpy.ceil((maxx) / binsz))
+        nslicey = int(numpy.ceil((maxy) / binsz))
         # changed line 697 and 698 from 1.0 to 1 in the last argument (E.A)
         x_lo = numpy.linspace(0.0,(nslicex*binsz),numpy.abs(nslicex)+1)
         y_lo = numpy.linspace(0.0,(nslicey*binsz),numpy.abs(nslicey)+1)
@@ -709,9 +709,9 @@ class SquareBinning(SpatialBinning):
 
 
         # Quadrant 2
-        # changed line 712,713 from numpy.ceil((maxx) / binsz) to numpy.int(numpy.ceil((maxx) / binsz)) - E.A
-        nslicex = numpy.int(numpy.ceil((maxx) / binsz))
-        nslicey = numpy.int(numpy.floor((miny) / binsz))
+        # changed line 712,713 from numpy.ceil((maxx) / binsz) to int(numpy.ceil((maxx) / binsz)) - E.A
+        nslicex = int(numpy.ceil((maxx) / binsz))
+        nslicey = int(numpy.floor((miny) / binsz))
         # changed line 716 and 717 from 1.0 to 1 in the last argument (E.A)
         x_lo = numpy.linspace(0.0, (nslicex * binsz), numpy.abs(nslicex) + 1)
         y_lo = numpy.linspace(0.0, (nslicey * binsz), numpy.abs(nslicey) + 1)
@@ -725,9 +725,9 @@ class SquareBinning(SpatialBinning):
                     ctbin = ctbin + 1
 
         # Quadrant 3
-        # changed line 729,730 from numpy.floor((maxx) / binsz) to numpy.int(numpy.floor((maxx) / binsz)) - E.A
-        nslicex = numpy.int(numpy.floor((minx) / binsz))
-        nslicey = numpy.int(numpy.ceil((maxy) / binsz))
+        # changed line 729,730 from numpy.floor((maxx) / binsz) to int(numpy.floor((maxx) / binsz)) - E.A
+        nslicex = int(numpy.floor((minx) / binsz))
+        nslicey = int(numpy.ceil((maxy) / binsz))
         # changed line 732 and 733 from 1.0 to 1 in the last argument (E.A)
         x_lo = numpy.linspace(0.0, (nslicex * binsz), numpy.abs(nslicex) + 1)
         y_lo = numpy.linspace(0.0, (nslicey * binsz), numpy.abs(nslicey) + 1)
@@ -741,9 +741,9 @@ class SquareBinning(SpatialBinning):
                     ctbin = ctbin + 1
 
         # Quadrant 4
-        # changed line 745,746 from numpy.floor((minx) / binsz) to numpy.int(numpy.floor((maxx) / binsz)) - E.A
-        nslicex = numpy.int(numpy.floor((minx) / binsz))
-        nslicey = numpy.int(numpy.floor((miny) / binsz))
+        # changed line 745,746 from numpy.floor((minx) / binsz) to int(numpy.floor((maxx) / binsz)) - E.A
+        nslicex = int(numpy.floor((minx) / binsz))
+        nslicey = int(numpy.floor((miny) / binsz))
         # changed line 748 and 749 from 1.0 to 1 in the last argument (E.A)
         x_lo = numpy.linspace(0.0, (nslicex * binsz), numpy.abs(nslicex) + 1)
         y_lo = numpy.linspace(0.0, (nslicey * binsz), numpy.abs(nslicey) + 1)

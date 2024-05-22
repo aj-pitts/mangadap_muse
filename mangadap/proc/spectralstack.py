@@ -714,7 +714,7 @@ class SpectralStack:
         nbin = self.flux.shape[0]
         nchan = covar.shape[-1]
         self.covar = numpy.empty(nchan, dtype=sparse.csr.csr_matrix)
-        variance_ratio = numpy.ma.zeros( (nbin,nchan), dtype=numpy.float) \
+        variance_ratio = numpy.ma.zeros( (nbin,nchan), dtype=float) \
                             if recalibrate_ivar else None
 
         # Calculate the covariance in the stack
@@ -1418,7 +1418,7 @@ class SpectralStack:
                                                            keep_range=keep_range)
 
         # Calculate the transfer matrix
-        self._set_rebin_transfer_matrix(numpy.zeros(nspec, dtype=numpy.int) 
+        self._set_rebin_transfer_matrix(numpy.zeros(nspec, dtype=int)
                                             if binid is None else binid, binwgt=binwgt)
 
         # Stack the spectra with or without covariance

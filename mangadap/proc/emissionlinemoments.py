@@ -439,12 +439,12 @@ class EmissionLineMoments:
 #        Construct the record array data type for the output fits
 #        extension.
 #        """
-#        return [ ('ID',numpy.int),
+#        return [ ('ID',int),
 #                 ('NAME','<U{0:d}'.format(name_len)),
-#                 ('RESTWAVE', numpy.float),
-#                 ('PASSBAND', numpy.float, (2,)),
-#                 ('BLUEBAND', numpy.float, (2,)),
-#                 ('REDBAND', numpy.float, (2,))
+#                 ('RESTWAVE', float),
+#                 ('PASSBAND', float, (2,)),
+#                 ('BLUEBAND', float, (2,)),
+#                 ('REDBAND', float, (2,))
 #               ]
 #
 #    def _compile_database(self):
@@ -626,29 +626,29 @@ class EmissionLineMoments:
 #        |       EWERR | Error in the above                         |
 #        +-------------+--------------------------------------------+
 #        """
-#        return [ ('BINID',numpy.int),
-#                 ('BINID_INDEX',numpy.int),
-#                 ('REDSHIFT', numpy.float),
-#                 ('MASK', numpy.bool if bitmask is None else bitmask.minimum_dtype(), (nmom,)),
-#                 ('BCEN', numpy.float, (nmom,)), 
-#                 ('BCONT', numpy.float, (nmom,)), 
-#                 ('BCONTERR', numpy.float, (nmom,)),
-#                 ('RCEN', numpy.float, (nmom,)), 
-#                 ('RCONT', numpy.float, (nmom,)), 
-#                 ('RCONTERR', numpy.float, (nmom,)), 
-#                 ('CNTSLOPE', numpy.float, (nmom,)),
-#                 ('FLUX', numpy.float, (nmom,)), 
-#                 ('FLUXERR', numpy.float, (nmom,)),
-#                 ('MOM1', numpy.float, (nmom,)), 
-#                 ('MOM1ERR', numpy.float, (nmom,)),
-#                 ('MOM2', numpy.float, (nmom,)), 
-#                 ('MOM2ERR', numpy.float, (nmom,)),
-#                 ('SINST', numpy.float, (nmom,)),
-#                 ('BMED', numpy.float, (nmom,)), 
-#                 ('RMED', numpy.float, (nmom,)), 
-#                 ('EWCONT', numpy.float, (nmom,)), 
-#                 ('EW', numpy.float, (nmom,)), 
-#                 ('EWERR', numpy.float, (nmom,))
+#        return [ ('BINID',int),
+#                 ('BINID_INDEX',int),
+#                 ('REDSHIFT', float),
+#                 ('MASK', bool if bitmask is None else bitmask.minimum_dtype(), (nmom,)),
+#                 ('BCEN', float, (nmom,)),
+#                 ('BCONT', float, (nmom,)),
+#                 ('BCONTERR', float, (nmom,)),
+#                 ('RCEN', float, (nmom,)),
+#                 ('RCONT', float, (nmom,)),
+#                 ('RCONTERR', float, (nmom,)),
+#                 ('CNTSLOPE', float, (nmom,)),
+#                 ('FLUX', float, (nmom,)),
+#                 ('FLUXERR', float, (nmom,)),
+#                 ('MOM1', float, (nmom,)),
+#                 ('MOM1ERR', float, (nmom,)),
+#                 ('MOM2', float, (nmom,)),
+#                 ('MOM2ERR', float, (nmom,)),
+#                 ('SINST', float, (nmom,)),
+#                 ('BMED', float, (nmom,)),
+#                 ('RMED', float, (nmom,)),
+#                 ('EWCONT', float, (nmom,)),
+#                 ('EW', float, (nmom,)),
+#                 ('EWERR', float, (nmom,))
 #               ]
 
 

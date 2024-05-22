@@ -109,8 +109,8 @@ def guess_regular_grid(xnodes, ynodes, pixelsize=None) :
     xn_rav, yn_rav = xnodes.ravel(), ynodes.ravel()
     if pixelsize is None :
         pixelsize = derive_pixelsize(xnodes, ynodes)
-    minxn = np.int(np.min(xn_rav) / pixelsize) * pixelsize
-    minyn = np.int(np.min(yn_rav) / pixelsize) * pixelsize
+    minxn = int(np.min(xn_rav) / pixelsize) * pixelsize
+    minyn = int(np.min(yn_rav) / pixelsize) * pixelsize
     xunb, yunb = np.meshgrid(np.arange(minxn, np.max(xn_rav)+pixelsize, pixelsize),
                            np.arange(minyn, np.max(yn_rav)+pixelsize, pixelsize))
 
@@ -254,7 +254,7 @@ def Derive_LR_VS_Profiles(X, Y, F, V, S, Rprofile=None, R_EpsPA=None, Eps=None, 
     result.Re = np.float32(kwargs.get('Re', 1.))
 
     result.Estimate_Vsys = kwargs.get('Estimate_Vsys', True)
-    result.Systemic_Velocity = np.int(kwargs.get('Systemic_Velocity', 0.))
+    result.Systemic_Velocity = int(kwargs.get('Systemic_Velocity', 0.))
     result.Vaperture = np.float32(kwargs.get('Vaperture', 3.))
 
     result.Maximum_Velocity = np.float32(kwargs.get('Maximum_Velocity', 500.))
@@ -265,7 +265,7 @@ def Derive_LR_VS_Profiles(X, Y, F, V, S, Rprofile=None, R_EpsPA=None, Eps=None, 
 
     result.Min_Radius = np.float32(kwargs.get('Min_Radius', 1.))
     result.Max_Radius = np.float32(kwargs.get('Max_Radius', 50.))
-    result.N_Radius = np.int(kwargs.get('N_Radius', 100))
+    result.N_Radius = int(kwargs.get('N_Radius', 100))
     ## ===========================================================
 
     ## Checking array ============================================

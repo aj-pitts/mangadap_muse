@@ -27,6 +27,7 @@ from scipy.ndimage import rank_filter
 import astropy.constants
 
 from ppxf import ppxf, capfit
+from ..util.extinction import default_calzetti_rv
 
 # For debugging
 from matplotlib import pyplot as plt
@@ -705,6 +706,7 @@ def _fit_iteration(tpl_wave, templates, wave, flux, noise, velscale, start, mome
         reddening (:obj:`float`, optional):
             Initial E(B-V) guess for reddening (uses ppxf-default
             Calzetti 2000 model).  No attentuation fit by default.
+            ** E(B-V) changed to attenuation A_v value for new ppxf version 9.2.2
         vgrp (array-like, optional):
             The integer velocity group associated with each template.
             Shape is :math:`(N_{\rm tpl},)`. 
@@ -857,7 +859,7 @@ def _fit_iteration(tpl_wave, templates, wave, flux, noise, velscale, start, mome
             pp = ppxf.ppxf(_templates.T, flux[i,ps[i]:pe[i]], noise[i,ps[i]:pe[i]], velscale,
                            _start, velscale_ratio=velscale_ratio, plot=plot, moments=_moments,
                            degree=degree, mdegree=mdegree, lam=wave[ps[i]:pe[i]],
-                           reddening=reddening, tied=tied,
+                           reddening=reddening*default_calzetti_rv(), tied=tied,
                            constr_kinem={} if _constr_kinem is None else _constr_kinem,
                            mask=model_mask[i,ps[i]:pe[i]], vsyst=vsyst[i], component=_component,
                            gas_component=_gas_template, quiet=quiet, method='capfit',
@@ -915,7 +917,7 @@ def _fit_iteration(tpl_wave, templates, wave, flux, noise, velscale, start, mome
                 pp = ppxf.ppxf(_templates.T, flux[i,ps[i]:pe[i]], noise[i,ps[i]:pe[i]], velscale,
                                _start, velscale_ratio=velscale_ratio, plot=plot, moments=_moments,
                                degree=degree, mdegree=mdegree, lam=wave[ps[i]:pe[i]],
-                               reddening=reddening, tied=tied,
+                               reddening=reddening*default_calzetti_rv(), tied=tied,
                                constr_kinem={} if _constr_kinem is None else _constr_kinem,
                                mask=model_mask[i,ps[i]:pe[i]], vsyst=vsyst[i],
                                component=_component, gas_component=_gas_template, quiet=quiet,

@@ -31,6 +31,7 @@ from ..par.parset import KeywordParSet
 from ..par.emissionlinedb import EmissionLineDB
 from ..util.datatable import DataTable
 from ..util.fitsutil import DAPFitsUtil
+from ..util.extinction import default_calzetti_rv
 from ..util.fileio import init_record_array
 from ..util.filter import interpolate_masked_vector
 from ..util.sampling import spectrum_velocity_scale, spectral_coordinate_step
@@ -1097,7 +1098,11 @@ class Sasuke(EmissionLineFit):
 
                 # - Reddening:
                 if used_ebv:
-                    extcurve = ppxf.reddening_cal00(self.obj_wave, model_fit_par['EBV'][i])
+                    # extcurve = ppxf.reddening_cal00(self.obj_wave, model_fit_par['EBV'][i])
+                    # changed :func: ppxf.reddening_cal100 to :func: ppxf.attenuation
+                    # for ppxf version 9.2.2, which takes in an attenuation value rather than
+                    # E(B-V) value.
+                    extcurve = ppxf.attenuation(self.obj_wave, model_fit_par['EBV'][i]*default_calzetti_rv())
                     model_eml_par['CONTRFIT'][i,:] \
                             = interpolate.interp1d(self.obj_wave, extcurve,
                                                    bounds_error=False, fill_value=1.0,

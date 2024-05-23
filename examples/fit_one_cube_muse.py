@@ -7,7 +7,6 @@ from mangadap.par.analysisplan import AnalysisPlan, AnalysisPlanSet
 from mangadap.scripts.ppxffit_qa import ppxffit_qa_plot
 from IPython import embed
 
-
 #-----------------------------------------------------------------------------
 def fit_one_cube_muse(config_file, analysis_plan, directory_path=None, analysis_path=None):
     r"""
@@ -75,17 +74,20 @@ def fit_one_cube_muse(config_file, analysis_plan, directory_path=None, analysis_
 
 if __name__ == '__main__':
 
-    # directory path for test cube NGC0000.fits
-    directory_path = os.path.abspath('./data/test_cube_data')
+    # file directory path
+    file_dir = os.path.dirname(__file__)
+
+    # MUSE cube directory path
+    directory_path = os.path.join(file_dir,'data/MUSE_cube_data')
 
     # Need to make up plate and ifu design numbers
-    plate = 100000
+    plate = 1
     ifudesign = 1
 
     # make sure the directory path is correct within the .ini file
-    config_fil = os.path.join(directory_path, 'mangadap-100000-1-LINCUBE.ini')
+    config_fil = os.path.join(directory_path, 'mangadap-1-1-LINCUBE-NGC4030.ini')
     # config file that implements correlation ratio correction.
-    config_fil_beta = os.path.join(directory_path,'mangadap-100000-1-LINCUBE-BETA.ini')
+    config_fil_beta = os.path.join(directory_path, 'mangadap-1-1-LINCUBE-BETA-NGC4030.ini')
 
     # Define how you want to analyze the data [include more descriptive definitions]
     plan = AnalysisPlanSet([ AnalysisPlan(drpqa_key='SNRG', # Data reduction quality assessment
@@ -111,22 +113,32 @@ if __name__ == '__main__':
                                           spindex_key='INDXEN',
                                           # Overwrite any existing spectral-index reference files
                                           spindex_clobber=True) ])
-    
-    # main directory name to hold both the corrected and non-corrected MUSE data
-    output_dir = './output2.0_test/'
-    # make the main directory if there isn't one already
-    if not os.path.isdir(output_dir):
-        os.makedirs(output_dir)
 
-    # run the DAP
-    fit_one_cube_muse(config_fil, plan, directory_path=directory_path, analysis_path=output_dir+'2.0_test_no_corr')
+    # main output directory
+    output_root_dir = os.path.join(file_dir, 'outputs')
+    # make the directory if there isn't one already
+    if not os.path.isdir(output_root_dir):
+        os.makedirs(output_root_dir)
+
+    # output galaxy directory
+    gal_name = 'NGC4030'
+    bin_method = plan['bin_key'][0]
+    output_gal_dir = os.path.join(output_root_dir,gal_name+'-'+bin_method)
+    if not os.path.isdir(output_gal_dir):
+        os.makedirs(output_gal_dir)
+
+    # directories for the corrected and non-corrected MUSE cubes
+    no_corr_dir = os.path.join(output_gal_dir,'NO-CORR')
+    corr_dir = os.path.join(output_gal_dir,'BETA-CORR')
+
+    # initial run of the DAP
+    fit_one_cube_muse(config_fil, plan, directory_path=directory_path, analysis_path=no_corr_dir)
+    # quality check
     ppxffit_qa_plot(plate, ifudesign, plan, drpver=None, redux_path=directory_path, dapver=None,
-                    analysis_path=output_dir+'2.0_test_no_corr',
-                    tpl_flux_renorm=None)
+                    analysis_path=no_corr_dir,tpl_flux_renorm=None)
 
-    # fit_one_cube_muse(config_fil_beta,plan,directory_path=directory_path,analysis_path=output_dir+'2.0_test_beta_corr')
-    # ppxffit_qa_plot(plate, ifudesign, plan, drpver=None, redux_path=directory_path, dapver=None,
-    #                 analysis_path=output_dir+'2.0_test_beta_corr',
-    #               tpl_flux_renorm=None)
-    #fit_one_cube_muse(config_file, directory_path=directory_path, analysis_path='./output2.0_test_err_corr')
-    #fit_one_cube_muse(config_file, directory_path=directory_path, analysis_path='./output2.0_NGC4030')
+    # final run
+    fit_one_cube_muse(config_fil_beta,plan,directory_path=directory_path,analysis_path=corr_dir)
+
+    ppxffit_qa_plot(plate, ifudesign, plan, drpver=None, redux_path=directory_path, dapver=None,
+                    analysis_path=corr_dir,tpl_flux_renorm=None)

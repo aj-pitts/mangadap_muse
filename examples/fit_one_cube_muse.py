@@ -5,8 +5,8 @@ from mangadap.datacube import MUSEDataCube
 from mangadap.survey.manga_dap import manga_dap
 from mangadap.par.analysisplan import AnalysisPlan, AnalysisPlanSet
 from mangadap.scripts.ppxffit_qa import ppxffit_qa_plot
-# from IPython import embed
-# embed()
+from IPython import embed
+
 
 #-----------------------------------------------------------------------------
 def fit_one_cube_muse(config_file, analysis_plan, directory_path=None, analysis_path=None):
@@ -76,7 +76,7 @@ def fit_one_cube_muse(config_file, analysis_plan, directory_path=None, analysis_
 if __name__ == '__main__':
 
     # directory path for test cube NGC0000.fits
-    directory_path = os.path.join(os.getcwd(),'data/test_cube_data/')
+    directory_path = os.path.abspath('./data/test_cube_data')
 
     # Need to make up plate and ifu design numbers
     plate = 100000
@@ -124,9 +124,9 @@ if __name__ == '__main__':
                     analysis_path=output_dir+'2.0_test_no_corr',
                     tpl_flux_renorm=None)
 
-    fit_one_cube_muse(config_fil_beta,plan,directory_path=directory_path,analysis_path=output_dir+'2.0_test_beta_corr')
-    ppxffit_qa_plot(plate, ifudesign, plan, drpver=None, redux_path=directory_path, dapver=None,
-                    analysis_path=output_dir+'2.0_test_beta_corr',
-                  tpl_flux_renorm=None)
+    # fit_one_cube_muse(config_fil_beta,plan,directory_path=directory_path,analysis_path=output_dir+'2.0_test_beta_corr')
+    # ppxffit_qa_plot(plate, ifudesign, plan, drpver=None, redux_path=directory_path, dapver=None,
+    #                 analysis_path=output_dir+'2.0_test_beta_corr',
+    #               tpl_flux_renorm=None)
     #fit_one_cube_muse(config_file, directory_path=directory_path, analysis_path='./output2.0_test_err_corr')
     #fit_one_cube_muse(config_file, directory_path=directory_path, analysis_path='./output2.0_NGC4030')

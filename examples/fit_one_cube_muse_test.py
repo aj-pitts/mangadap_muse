@@ -10,7 +10,7 @@ from IPython import embed
 #-----------------------------------------------------------------------------
 def fit_one_cube_muse(config_file, analysis_plan, directory_path=None, analysis_path=None):
     r"""
-       Custom wrapper function to execute the MaNGA DAP on MUSE cubes.
+       Custom wrapper to execute the MaNGA DAP on MUSE cubes.
 
        This function is designed to be called once per datacube. The
        :class:`mangadap.par.analysisplan.AnalysisPlanSet` instance sets

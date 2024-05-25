@@ -10,7 +10,7 @@ from IPython import embed
 #-----------------------------------------------------------------------------
 def fit_one_cube_muse(config_file, analysis_plan, directory_path=None, analysis_path=None):
     r"""
-       Custom wrapper function to execute the MaNGA DAP on MUSE cubes.
+       Custom wrapper to execute the MaNGA DAP on MUSE cubes.
 
        This function is designed to be called once per datacube. The
        :class:`mangadap.par.analysisplan.AnalysisPlanSet` instance sets
@@ -92,27 +92,27 @@ if __name__ == '__main__':
     # Define how you want to analyze the data [include more descriptive definitions]
     plan = AnalysisPlanSet([ AnalysisPlan(drpqa_key='SNRG', # Data reduction quality assessment
                                           # Overwrite existing data-quality assessment reference files
-                                          drpqa_clobber=True,
+                                          drpqa_clobber=False,
                                           # Spatial binning method keyword
                                           bin_key='SQUARE2.0', # SQUARE bin size options are 0.6, 1.0 and 2.0
                                           # Overwrite any existing spatial binning reference files
-                                          bin_clobber=True,
+                                          bin_clobber=False,
                                           # Stellar-continuum fitting method keyword
                                           continuum_key='MILESHC-NOISM',
                                           # Overwrite any existing stellar-continuum fitting reference files
-                                          continuum_clobber=True,
+                                          continuum_clobber=False,
                                           # Emission-line moments measurement method keyword
                                           elmom_key='EMOMMPL11',
                                           # Overwrite any existing emission-line moments reference files
-                                          elmom_clobber=True,
+                                          elmom_clobber=False,
                                           # Emission-line modeling method keyword
                                           elfit_key= 'EFITMPL11-ISMMASK-HCNOISM',
                                           # Overwrite any existing emission-line modeling reference files
-                                          elfit_clobber=True,
+                                          elfit_clobber=False,
                                           # Spectral-index measurement method keyword
                                           spindex_key='INDXEN',
                                           # Overwrite any existing spectral-index reference files
-                                          spindex_clobber=True) ])
+                                          spindex_clobber=False) ])
 
     # main output directory
     output_root_dir = os.path.join(file_dir, 'outputs')

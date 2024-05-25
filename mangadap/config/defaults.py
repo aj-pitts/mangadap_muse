@@ -456,7 +456,7 @@ def dap_plan_file(drpver=None, dapver=None, analysis_path=None):
     return os.path.join(_analysis_path, plan_file)
 
 
-def dap_file_name(plate, ifudesign, output_mode, mode=None, compressed=True):
+def dap_file_name(plate, ifudesign, output_mode, mode=None, compressed=False):
     """
     Return the name of the DAP output fits file.
 

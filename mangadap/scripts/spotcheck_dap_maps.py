@@ -76,7 +76,7 @@ def spotcheck_images(analysis_path, daptype, plate, ifudesign, ofile=None, drpve
 
     plan_dir = defaults.dap_method_path(daptype, plate=plate, ifudesign=ifudesign, drpver=drpver,
                                         dapver=dapver, analysis_path=analysis_path)
-    ifile = os.path.join(plan_dir, 'manga-{0}-{1}-MAPS-{2}.fits.gz'.format(plate, ifudesign,
+    ifile = os.path.join(plan_dir, 'manga-{0}-{1}-MAPS-{2}.fits'.format(plate, ifudesign,
                                                                            daptype))
     if not os.path.isfile(ifile):
         raise FileNotFoundError('No file: {0}'.format(ifile))

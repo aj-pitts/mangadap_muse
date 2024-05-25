@@ -688,12 +688,12 @@ def fit_residuals_muse(dapver, analysis_path, daptype, plt, ifu):
         os.makedirs(plan_qa_dir)
 
     #rpath = os.path.join(redux_path, str(plt))
-    #drp_file = os.path.join(rpath, 'stack', 'manga-{0}-{1}-LOGCUBE.fits.gz'.format(plt,ifu))
+    #drp_file = os.path.join(rpath, 'stack', 'manga-{0}-{1}-LOGCUBE.fits'.format(plt,ifu))
     #image_file = os.path.join(rpath, 'images', '{0}.png'.format(ifu))
 
     apath = os.path.join(analysis_path, daptype, str(plt), str(ifu))
-    maps_file = os.path.join(apath, 'manga-{0}-{1}-MAPS-{2}.fits.gz'.format(plt,ifu,daptype))
-    cube_file = os.path.join(apath, 'manga-{0}-{1}-LOGCUBE-{2}.fits.gz'.format(plt,ifu,daptype))
+    maps_file = os.path.join(apath, 'manga-{0}-{1}-MAPS-{2}.fits'.format(plt,ifu,daptype))
+    cube_file = os.path.join(apath, 'manga-{0}-{1}-LOGCUBE-{2}.fits'.format(plt,ifu,daptype))
 
     # Stellar continuum fit qa plot
     ofile_root = os.path.join(plan_qa_dir, 'manga-{0}-{1}-LOGCUBE-{2}-sc-fitqa'.format(

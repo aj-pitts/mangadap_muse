@@ -1281,8 +1281,9 @@ class EmissionLineMoments:
         #---------------------------------------------------------------
         # Perform the moment measurements
         _redshift = self.redshift[good_snr]
+        _continuum = continuum[good_snr]
         measurements = self.measure_moments(self.momdb, wave, flux, ivar=ivar, sres=sres,
-                                            continuum=continuum, redshift=_redshift,
+                                            continuum=_continuum, redshift=_redshift,
                                             bitmask=self.bitmask)
 
         #---------------------------------------------------------------

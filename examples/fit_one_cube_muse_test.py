@@ -167,7 +167,7 @@ if __name__ == '__main__':
                     analysis_path=no_corr_dir,tpl_flux_renorm=None)
 
     # final run
-    fit_one_cube_muse(config_fil_beta,plan,directory_path=directory_path,analysis_path=corr_dir)
-
-    ppxffit_qa_plot(plate, ifudesign, plan, drpver=None, redux_path=directory_path, dapver=None,
-                    analysis_path=corr_dir,tpl_flux_renorm=None)
+    # fit_one_cube_muse(config_fil_beta,plan,directory_path=directory_path,analysis_path=corr_dir)
+    #
+    # ppxffit_qa_plot(plate, ifudesign, plan, drpver=None, redux_path=directory_path, dapver=None,
+    #                 analysis_path=corr_dir,tpl_flux_renorm=None)

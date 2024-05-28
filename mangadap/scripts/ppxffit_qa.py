@@ -134,7 +134,7 @@ def stellar_continuum_maps(plt, ifu, daptype, snr, r68, r99, rchi2, signal, a, d
                            gmr, t, dt, tn, dtn, svel, ssigo, ssigcor, ssigc, extent=None,
                            ofile=None):
 
-    font = { 'size' : 10 }
+    font = { 'size' : 12 }
     rc('font', **font)
 
     w,h = pyplot.figaspect(1)
@@ -200,7 +200,7 @@ def stellar_continuum_maps(plt, ifu, daptype, snr, r68, r99, rchi2, signal, a, d
     ax.set_ylim(extent[2:])
     # ax.add_patch(map_beam_patch(extent, ax, facecolor='0.7', edgecolor='k', zorder=4))
     ax.text(0.1, 0.95, r'S/N', horizontalalignment='left', verticalalignment='center',
-            transform=ax.transAxes,c='dimgrey')
+            transform=ax.transAxes,c='r')
 
     # ------------------------------------------------------------------
     # 68th percentile of fractional residuals
@@ -216,7 +216,7 @@ def stellar_continuum_maps(plt, ifu, daptype, snr, r68, r99, rchi2, signal, a, d
     ax.set_ylim(extent[2:])
     # ax.add_patch(map_beam_patch(extent, ax, facecolor='0.7', edgecolor='k', zorder=4))
     ax.text(0.1, 0.95, r'68% Frac. Resid', horizontalalignment='left', verticalalignment='center',
-            transform=ax.transAxes,zorder=4, c='dimgrey')
+            transform=ax.transAxes,zorder=4, c='r')
 
 #    ax.text(0.5, 1.2, '{0}-{1}'.format(plt, ifu), horizontalalignment='center',
 #            verticalalignment='center', transform=ax.transAxes, fontsize=12)
@@ -237,7 +237,7 @@ def stellar_continuum_maps(plt, ifu, daptype, snr, r68, r99, rchi2, signal, a, d
     ax.set_ylim(extent[2:])
     # ax.add_patch(map_beam_patch(extent, ax, facecolor='0.7', edgecolor='k', zorder=4))
     ax.text(0.1, 0.95, r'99% Frac. Resid', horizontalalignment='left', verticalalignment='center',
-            transform=ax.transAxes,zorder=4, c='dimgrey')
+            transform=ax.transAxes,zorder=4, c='r')
 
     # ------------------------------------------------------------------
     # Reduced chi-square
@@ -253,7 +253,7 @@ def stellar_continuum_maps(plt, ifu, daptype, snr, r68, r99, rchi2, signal, a, d
     ax.set_ylim(extent[2:])
     # ax.add_patch(map_beam_patch(extent, ax, facecolor='0.7', edgecolor='k', zorder=4))
     ax.text(0.1, 0.95, r'$\chi^2_\nu$', horizontalalignment='left', verticalalignment='center',
-            transform=ax.transAxes,zorder=4, c='dimgrey')
+            transform=ax.transAxes,zorder=4, c='r')
 
 
     # ------------------------------------------------------------------
@@ -270,7 +270,7 @@ def stellar_continuum_maps(plt, ifu, daptype, snr, r68, r99, rchi2, signal, a, d
     ax.set_ylim(extent[2:])
     # ax.add_patch(map_beam_patch(extent, ax, facecolor='0.7', edgecolor='k', zorder=4))
     ax.text(0.1, 0.95, r'$I_g$', horizontalalignment='left', verticalalignment='center',
-            transform=ax.transAxes,zorder=4, c='dimgrey')
+            transform=ax.transAxes,zorder=4, c='r')
 
     # ------------------------------------------------------------------
     # A
@@ -286,7 +286,7 @@ def stellar_continuum_maps(plt, ifu, daptype, snr, r68, r99, rchi2, signal, a, d
     ax.set_ylim(extent[2:])
     # ax.add_patch(map_beam_patch(extent, ax, facecolor='0.7', edgecolor='k', zorder=4))
     ax.text(0.1, 0.95, r'$\log A$', horizontalalignment='left', verticalalignment='center',
-            transform=ax.transAxes,zorder=4, c='dimgrey')
+            transform=ax.transAxes,zorder=4, c='r')
 
     # ------------------------------------------------------------------
     # Delta A
@@ -302,7 +302,7 @@ def stellar_continuum_maps(plt, ifu, daptype, snr, r68, r99, rchi2, signal, a, d
     ax.set_ylim(extent[2:])
     # ax.add_patch(map_beam_patch(extent, ax, facecolor='0.7', edgecolor='k', zorder=4))
     ax.text(0.1, 0.95, r'$\log A_n$', horizontalalignment='left', verticalalignment='center',
-            transform=ax.transAxes,zorder=4, c='dimgrey')
+            transform=ax.transAxes,zorder=4, c='r')
 
     # ------------------------------------------------------------------
     # Delta A/Ig
@@ -319,7 +319,7 @@ def stellar_continuum_maps(plt, ifu, daptype, snr, r68, r99, rchi2, signal, a, d
     ax.set_ylim(extent[2:])
     # ax.add_patch(map_beam_patch(extent, ax, facecolor='0.7', edgecolor='k', zorder=4))
     ax.text(0.1, 0.95, r'$\log(\delta A_n)$', horizontalalignment='left',
-            verticalalignment='center', transform=ax.transAxes,zorder=4, c='dimgrey')
+            verticalalignment='center', transform=ax.transAxes,zorder=4, c='r')
 
     # ------------------------------------------------------------------
     # g-r Color
@@ -333,7 +333,7 @@ def stellar_continuum_maps(plt, ifu, daptype, snr, r68, r99, rchi2, signal, a, d
     ax.set_ylim(extent[2:])
     # ax.add_patch(map_beam_patch(extent, ax, facecolor='0.7', edgecolor='k', zorder=4))
     ax.text(0.1, 0.95, r'$g-r$', horizontalalignment='left', verticalalignment='center',
-            transform=ax.transAxes,zorder=4, c='dimgrey')
+            transform=ax.transAxes,zorder=4, c='r')
 
     # ------------------------------------------------------------------
     # T
@@ -349,7 +349,7 @@ def stellar_continuum_maps(plt, ifu, daptype, snr, r68, r99, rchi2, signal, a, d
     ax.set_ylim(extent[2:])
     # ax.add_patch(map_beam_patch(extent, ax, facecolor='0.7', edgecolor='k', zorder=4))
     ax.text(0.1, 0.95, r'$\log T$', horizontalalignment='left', verticalalignment='center',
-            transform=ax.transAxes,zorder=4, c='dimgrey')
+            transform=ax.transAxes,zorder=4, c='r')
 
     # ------------------------------------------------------------------
     # Delta T
@@ -365,7 +365,7 @@ def stellar_continuum_maps(plt, ifu, daptype, snr, r68, r99, rchi2, signal, a, d
     ax.set_ylim(extent[2:])
     # ax.add_patch(map_beam_patch(extent, ax, facecolor='0.7', edgecolor='k', zorder=4))
     ax.text(0.1, 0.95, r'$\log T_n$', horizontalalignment='left', verticalalignment='center',
-            transform=ax.transAxes,zorder=4, c='dimgrey')
+            transform=ax.transAxes,zorder=4, c='r')
 
     # ------------------------------------------------------------------
     # Delta T/Ig
@@ -382,7 +382,7 @@ def stellar_continuum_maps(plt, ifu, daptype, snr, r68, r99, rchi2, signal, a, d
     ax.set_ylim(extent[2:])
     # ax.add_patch(map_beam_patch(extent, ax, facecolor='0.7', edgecolor='k', zorder=4))
     ax.text(0.1, 0.95, r'$\log \delta T_n$', horizontalalignment='left',
-            verticalalignment='center', transform=ax.transAxes,zorder=4, c='dimgrey')
+            verticalalignment='center', transform=ax.transAxes,zorder=4, c='r')
 
     # ------------------------------------------------------------------
     # Stellar velocity
@@ -396,7 +396,7 @@ def stellar_continuum_maps(plt, ifu, daptype, snr, r68, r99, rchi2, signal, a, d
     ax.set_ylim(extent[2:])
     # ax.add_patch(map_beam_patch(extent, ax, facecolor='0.7', edgecolor='k', zorder=4))
     ax.text(0.1, 0.95, r'$V_\ast$ (km/s)', horizontalalignment='left',
-            verticalalignment='center', transform=ax.transAxes,zorder=4, c='dimgrey')
+            verticalalignment='center', transform=ax.transAxes,zorder=4, c='r')
 
     # ------------------------------------------------------------------
     # Stellar sigma
@@ -413,7 +413,7 @@ def stellar_continuum_maps(plt, ifu, daptype, snr, r68, r99, rchi2, signal, a, d
     ax.set_ylim(extent[2:])
     # ax.add_patch(map_beam_patch(extent, ax, facecolor='0.7', edgecolor='k', zorder=4))
     ax.text(0.1, 0.95, r'$\sigma_{\rm obs}$ (km/s)', horizontalalignment='left',
-            verticalalignment='center', transform=ax.transAxes,zorder=4, c='dimgrey')
+            verticalalignment='center', transform=ax.transAxes,zorder=4, c='r')
 
     # ------------------------------------------------------------------
     # Sigma correction
@@ -429,7 +429,7 @@ def stellar_continuum_maps(plt, ifu, daptype, snr, r68, r99, rchi2, signal, a, d
     ax.set_ylim(extent[2:])
     # ax.add_patch(map_beam_patch(extent, ax, facecolor='0.7', edgecolor='k', zorder=4))
     ax.text(0.1, 0.95, r'$\sigma_{\rm corr}$ (km/s)', horizontalalignment='left',
-            verticalalignment='center', transform=ax.transAxes,zorder=4, c='dimgrey')
+            verticalalignment='center', transform=ax.transAxes,zorder=4, c='r')
 
     # ------------------------------------------------------------------
     # Corrected stellar sigma 
@@ -446,7 +446,7 @@ def stellar_continuum_maps(plt, ifu, daptype, snr, r68, r99, rchi2, signal, a, d
     ax.set_ylim(extent[2:])
     # ax.add_patch(map_beam_patch(extent, ax, facecolor='0.7', edgecolor='k', zorder=4))
     ax.text(0.1, 0.95, r'$\sigma_\ast$ (km/s)', horizontalalignment='left',
-            verticalalignment='center', transform=ax.transAxes,zorder=4, c='dimgrey')
+            verticalalignment='center', transform=ax.transAxes,zorder=4, c='r')
 
     if ofile is None:
         pyplot.show()

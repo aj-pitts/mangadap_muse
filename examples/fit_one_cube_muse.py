@@ -118,8 +118,9 @@ if __name__ == '__main__':
                                          continuum_clobber=True,
                                          # Emission-line moments measurement method keyword
                                          # -Measures the moments of the observed emission lines.
-                                         # 'EMOMMPL11' uses an empirical stellar spectra library
-                                         # from the SDSS BOSS project (Kessell+2017).
+                                         # 'EMOMMPL11' uses an ELBMPL9 emission-line bandpass databas.
+                                         #  These Line wavelengths are "Ritz" wavelengths from NIST:
+                                         #  http://physics.nist.gov/PhysRefData/ASD/Html/help.html
                                          elmom_key='EMOMMPL11',
                                          # Overwrite any existing emission-line moments reference files
                                          elmom_clobber=True,

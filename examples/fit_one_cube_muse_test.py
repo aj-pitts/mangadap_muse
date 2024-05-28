@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
 import os
+
 from mangadap.datacube import MUSEDataCube
 from mangadap.survey.manga_dap import manga_dap
 from mangadap.par.analysisplan import AnalysisPlan, AnalysisPlanSet
 from mangadap.scripts.ppxffit_qa import ppxffit_qa_plot
 from IPython import embed
-
 #-----------------------------------------------------------------------------
 def fit_one_cube_muse(config_file, analysis_plan, directory_path=None, analysis_path=None):
     r"""
@@ -77,7 +77,7 @@ if __name__ == '__main__':
     # file directory path
     file_dir = os.path.dirname(__file__)
 
-    # MUSE cube directory path
+    # test MUSE cube directory path
     directory_path = os.path.join(file_dir,'data/test_cube_data')
 
     # Need to make up plate and ifu design numbers
@@ -89,27 +89,55 @@ if __name__ == '__main__':
     # configuration file that implements correlation ratio correction
     config_fil_beta = os.path.join(directory_path, 'mangadap-100000-1-LINCUBE-BETA.ini')
 
-    # Define how you want to analyze the data [include more descriptive definitions]
-    plan = AnalysisPlanSet([ AnalysisPlan(drpqa_key='SNRG', # Data reduction quality assessment
-                                          # Overwrite existing data-quality assessment reference files
+    # Define how you want to analyze the data
+
+                                          # Data reduction quality assessment keyword.
+                                          # - Defines how to assess the reduced data
+                                          # - 'SNRG' keyword assesses quality of each spaxel by its S/N ratio.
+    plan = AnalysisPlanSet([ AnalysisPlan(drpqa_key='SNRG',
+                                          # Overwrite existing data-quality assessment reference files if True.
+                                          # - if False, the DAP searches for these references files to skip
+                                          #   the process if files exist already from a previous execution.
                                           drpqa_clobber=True,
-                                          # Spatial binning method keyword
-                                          bin_key='SQUARE2.0', # SQUARE bin size options are 0.6, 1.0 and 2.0
-                                          # Overwrite any existing spatial binning reference files
+                                          # Spatial binning method keyword.
+                                          # - Places spaxels in square bins with a certain
+                                          #   bin size length (in units of arcsec).
+                                          # - Available SQUARE method bin size options are
+                                          #   SQUARE2.0, SQUARE1.0 and SQUARE0.6
+                                          bin_key='SQUARE2.0',
+                                          # Overwrite any existing spatial binning reference files.
+                                          # Same as dqpa_clobber
                                           bin_clobber=True,
-                                          # Stellar-continuum fitting method keyword
+                                          # Stellar-continuum fitting method keyword.
+                                          # - Defines which stellar continuum model to use.
+                                          # -'MILESHC-NOISM' uses a new version of the MILES Hierarchical
+                                          #   Cluster Library containing a significant
+                                          #   reduction in the model overestimation of stellar absorption.
                                           continuum_key='MILESHC-NOISM',
                                           # Overwrite any existing stellar-continuum fitting reference files
                                           continuum_clobber=True,
                                           # Emission-line moments measurement method keyword
+                                          # -Measures the moments of the observed emission lines.
+                                          # 'EMOMMPL11' uses an empirical stellar spectra library
+                                          # from the SDSS BOSS project (Kessell+2017).
                                           elmom_key='EMOMMPL11',
                                           # Overwrite any existing emission-line moments reference files
                                           elmom_clobber=True,
                                           # Emission-line modeling method keyword
+                                          # - Used to define which emission-line moment database to use
+                                          # - This process conducts the emission-line profile fitting.
+                                          # - 'EFITMPL11-ISMMASK-HCNOISM' places an ISM mask on the ELPMPL11
+                                          #    library and uses the MaStar Hierarchically Clustered Library v2
+                                          #    for the continuum templates.
                                           elfit_key= 'EFITMPL11-ISMMASK-HCNOISM',
                                           # Overwrite any existing emission-line modeling reference files
                                           elfit_clobber=True,
                                           # Spectral-index measurement method keyword
+                                          # - Defines which spectral indices library to use.
+                                          # - 'INDEX' uses the bandhead indices from:
+                                          #     D4000   - Bruzual (1983, ApJ, 273, 105)
+                                          #     Dn4000  - Balogh et al. (1999, ApJ, 527, 54)
+                                          #     TiOCvD  - Conroy & van Dokkum (2012, ApJ, 747, 69)
                                           spindex_key='INDXEN',
                                           # Overwrite any existing spectral-index reference files
                                           spindex_clobber=True) ])
@@ -120,7 +148,8 @@ if __name__ == '__main__':
     if not os.path.isdir(output_root_dir):
         os.makedirs(output_root_dir)
 
-    # output galaxy directory
+    # galaxy output directory name
+    # subdirectory in mangadap/data/beta_tables should have the same name as gal_name
     gal_name = 'test'
     bin_method = plan['bin_key'][0]
     output_gal_dir = os.path.join(output_root_dir,gal_name+'-'+bin_method)

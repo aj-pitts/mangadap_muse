@@ -118,7 +118,7 @@ if __name__ == '__main__':
                                          continuum_clobber=True,
                                          # Emission-line moments measurement method keyword
                                          # -Measures the moments of the observed emission lines.
-                                         # 'EMOMMPL11' uses an ELBMPL9 emission-line bandpass databas.
+                                         # 'EMOMMPL11' uses the ELBMPL9 emission-line bandpass databas.
                                          #  These Line wavelengths are "Ritz" wavelengths from NIST:
                                          #  http://physics.nist.gov/PhysRefData/ASD/Html/help.html
                                          elmom_key='EMOMMPL11',

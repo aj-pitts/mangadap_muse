@@ -200,7 +200,7 @@ def stellar_continuum_maps(plt, ifu, daptype, snr, r68, r99, rchi2, signal, a, d
     ax.set_ylim(extent[2:])
     # ax.add_patch(map_beam_patch(extent, ax, facecolor='0.7', edgecolor='k', zorder=4))
     ax.text(0.1, 0.95, r'S/N', horizontalalignment='left', verticalalignment='center',
-            transform=ax.transAxes,c='r')
+            transform=ax.transAxes,zorder=4,c='r')
 
     # ------------------------------------------------------------------
     # 68th percentile of fractional residuals

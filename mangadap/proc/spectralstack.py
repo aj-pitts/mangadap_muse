@@ -556,25 +556,28 @@ class SpectralStack:
         """
         return 1 + a * (numpy.log10(N_spx)) ** b
 
-    def _get_beta_muse(self,beta_dir,wv_lim, S_N, N_spx):
+    def _get_beta_muse(self, wv_lim, S_N, N_spx):
         r"""
-        Function to determine which correlation ratio value to use. Input directory
-        indicates which beta table subdirectory to employ while input wavelength range
-        points to which .dat file to use. Within the .dat file, the S/N bin columns
-        and N_spx bin rows are utilized to pinpoint the correct correlation ratio value
-        for a given input S/N and N_spx value combination.
+        Function to determine which correlation ratio value to use.
 
-        If the specific S/N and N_spx combination is not found from the .dat file then
-        a correlation ratio is derived using the Sarzi+2018 quadratic relationship. The
-        parameters used in the Sarzi relation is found within the .dat file itself.
+        Input directory indicates which beta table subdirectory to employ
+        while input wavelength range points to which .dat file to use.
+
+        Within the .dat file, the S/N bin columns and N_spx bin rows are
+        utilized to pinpoint the correct correlation ratio value
+        for a given input S/N and N_spx.
+
+        If the specific S/N and N_spx combination is not found in the .dat
+        file then a correlation ratio is derived using the Sarzi+2018 quadratic
+        relation. The parameters used in the Sarzi relation is found within the
+        .dat file itself.
+
         To view the structure of the quadratic function see :func: `beta_func_quad`.
 
         Args:
-            beta_dir (:obj:`str`):
-                Directory name for specific beta table subdirectory to use.
             wv_lim (:obj:`list`):
                 List containing two `float` values used as the
-                wavelength range to extract the specific correlation ratio.
+                wavelength range.
             S_N (:obj:`float`):
                 Median S/N value for the input wavelength range
             N_spx (:obj:`int`):
@@ -585,10 +588,10 @@ class SpectralStack:
                 Can be drawn from either the specifc beta_table .dat file or
                 calculated using the Sarzi+2018 quadratic function.
         """
-
+        beta_dir = self.beta_dir
         beta_table_path = os.path.join(defaults.dap_data_root(),'beta_tables/'+beta_dir+'/')
         if not os.path.isdir(beta_table_path):
-            raise ValueError('{0} is not a directory!'.format(beta_table_path))
+            raise ValueError('{0} is not a directory within beta_tables!'.format(beta_table_path))
 
         beta_file = glob.glob(beta_table_path + '*' + str(wv_lim[0]) + '_' + str(wv_lim[1]) + '*.dat')
         beta_table = ascii.read(beta_file[0])
@@ -606,66 +609,75 @@ class SpectralStack:
                 col_name = 'S_N_' + str(S_N_range[0]) + '-' + str(S_N_range[1])
                 beta_col = beta_table[col_name]
 
-                print('using beta table for S/N Range: {}-{}'.format(S_N_range[0], S_N_range[1]))
+                print('Using beta table for S/N Range: {}-{}'.format(S_N_range[0], S_N_range[1]))
 
                 if N_spx in N_spx_ranges:
-
                     col_row = numpy.argwhere(N_spx_ranges == N_spx)
-                    print('  using column row {} for N_spx: {}'.format(col_row[0][0], N_spx))
+                    print('  Using column row {} for N_spx: {}'.format(col_row[0][0], N_spx))
                     beta = beta_col[col_row][0][0]
 
                     if beta == -999:
-                        print('    using Sarzi relation because beta = -999')
+                        print('    Using Sarzi relation because beta = -999')
                         print(self.beta_func_quad(N_spx, a, b), '\n')
                         return self.beta_func_quad(N_spx, a, b)
 
                     else:
-                        print('    using beta value:{:.4f}\n'.format(beta))
+                        print('    Using beta value:{:.4f}\n'.format(beta))
                         return beta
 
                 else:
-                    print(' using Sarzi relation for N_spx: {}'.format(N_spx))
+                    print(' Using Sarzi relation for N_spx: {}'.format(N_spx))
                     print(self.beta_func_quad(N_spx, a, b), '\n')
                     return self.beta_func_quad(N_spx, a, b)
 
         # if it goes through the entire forloop without returning something use sarzi relationship
-        print('using Sarzi relation for S/N: {}'.format(S_N))
+        print('Using Sarzi relation for S/N: {}'.format(S_N))
         print(self.beta_func_quad(N_spx, a, b), '\n')
         return self.beta_func_quad(N_spx, a, b)
 
-    def _correct_error_muse(self, beta_dir, wv_lim):
+    def _correct_error_muse(self, beta_dir):
         r"""
-        An alternative method to account for the spatial covariance that
-        differs from the available covariance methods.A specific correlation
-        ratio (beta) used to correct the inverse variance based on the S/N in
-        each wavelength segment (wv_lim) and the number of spaxels (N_spx)
-        in each bin. The specific correlation ratio value is drawn from a .dat file
-        residing in the directory `manga.data.beta_tables`. For more information on
-        how the correlation ratio value is determined see :func:`_get_beta_muse`.
+        An alternative method to account for the spatial
+        covariance that differs from the available
+        covariance methods.
+
+        A specific correlation ratio (beta) is used to correct the inverse
+        variance based on the S/N in each wavelength segment and the
+        number of spaxels in each bin.
+
+        The specific correlation ratio value is drawn from a .dat file
+        residing mangadap.data.beta_tables`.
+
+        For more information on how the correlation ratio value is determined
+        see :func:`_get_beta_muse`.
 
         Args:
             beta_dir (:obj:`str`):
-                Directory name for specific beta table subdirectory to use.
-            wv_lim (:obj:`list`):
-                List containing two `float` values used as the
-                wavelength range to extract the specific correlation ratio.
+                Directory name to specify which beta table data to use.
         """
-        # mean flux and error within input wavelength limits
-        flux_seg = self.fluxmean[:,(self.wave >  wv_lim[0]) & (self.wave <  wv_lim[1])]
-        error_seg = numpy.sqrt(1/self.ivar[:,(self.wave >  wv_lim[0]) & (self.wave <  wv_lim[1])])
+        self.beta_dir = beta_dir
+        nbins = self.flux.shape[0]
 
-        # correct uncertainty in each bin to account for spatial covariance
-        for i in range(self.flux.shape[0]):
-            N_spx = self.npix[i][0]
-            S_N = numpy.median(flux_seg[i]/error_seg[i])
+        # wavelengths segments to loop over when correcting for ivar.
+        wv_lims = [[4751.42, 5212], [5212, 5672], [5672, 6132], [6132, 6592],
+                   [6592, 7052], [7052, 7513], [7513, 7973], [7973, 8433], [8433, 8893], [8893, 9353.44]]
+        for wv_lim in wv_lims:
+            # mean flux and error within input wavelength range
+            flux_seg = self.fluxmean[:,(self.wave >  wv_lim[0]) & (self.wave <  wv_lim[1])]
+            error_seg = numpy.sqrt(1/self.ivar[:,(self.wave >  wv_lim[0]) & (self.wave <  wv_lim[1])])
 
-            if numpy.ma.is_masked(S_N) == True or numpy.ma.is_masked(N_spx)==True:
-                continue
-            elif (numpy.isfinite(S_N) == False) or (numpy.isfinite(N_spx) == False):
-                continue
-            else:
-                beta = self._get_beta_muse(beta_dir, wv_lim, S_N, N_spx)
-                self.ivar[i][(self.wave >=  wv_lim[0]) & (self.wave <=  wv_lim[1])] = 1/(error_seg[i]*beta)**2
+            # loop over the number of bins
+            for i in range(nbins):
+                N_spx = self.npix[i][0]
+                S_N = numpy.median(flux_seg[i]/error_seg[i])
+
+                if numpy.ma.is_masked(S_N) == True or numpy.ma.is_masked(N_spx)==True:
+                    continue
+                elif (numpy.isfinite(S_N) == False) or (numpy.isfinite(N_spx) == False):
+                    continue
+                else:
+                    beta = self._get_beta_muse(wv_lim, S_N, N_spx)
+                    self.ivar[i][(self.wave >=  wv_lim[0]) & (self.wave <=  wv_lim[1])] = 1/(error_seg[i]*beta)**2
 
     def _stack_with_covariance(self, flux, covariance_mode, covar, ivar=None, sres=None):
         """
@@ -1331,12 +1343,12 @@ class SpectralStack:
                 When registering the wavelengths of the shifted spectra,
                 keep the identical spectral range as input.
             beta_corr (:obj:`bool`, optional):
-                Option to use a correlation ratio to account for the spatial covariance
-                in each bin ID. If True, beta tables are used for the correction.
-                See :func:`_correct_error_muse`.
+                Option to use a correlation ratio to account for the spatial
+                covariance in each bin ID. If True, beta tables are used for
+                the correction. See :func:`_correct_error_muse`.
             beta_dir (:obj:`str`,optional):
-                Directory name to specify which beta table data to use. The correlation ratio to use
-                is based on S/N and number of spaxels in each bin. See :func:`_correct_error_muse`.
+                Directory name to specify which beta table data to use.
+                See :func:`_correct_error_muse`.
 
         Returns:
             :obj:`tuple`: Returns seven objects: the wavelength
@@ -1448,11 +1460,9 @@ class SpectralStack:
                                                         else self.sres.reshape(outshape[0], -1)
                                                    ).reshape(outshape)
         if beta_corr is True:
-            # wavelengths segments to loop over when correcting for ivar.
-            wv_lims = [[4751.42, 5212], [5212, 5672], [5672, 6132], [6132, 6592],
-                       [6592, 7052], [7052, 7513], [7513, 7973], [7973, 8433], [8433, 8893], [8893, 9353.44]]
-            for wv_lim in wv_lims:
-                self._correct_error_muse(beta_dir,wv_lim)
+            if beta_dir is None:
+                raise ValueError('Must provide a beta table directory name!')
+            self._correct_error_muse(beta_dir)
 
         # Return the stacked data
         if operation == 'sum':

@@ -556,7 +556,7 @@ class SpectralStack:
         """
         return 1 + a * (numpy.log10(N_spx)) ** b
 
-    def _get_beta_muse(self, wv_lim, S_N, N_spx):
+    def _get_beta_muse(self, beta_dir, wv_lim, S_N, N_spx):
         r"""
         Function to determine which correlation ratio value to use.
 
@@ -575,6 +575,8 @@ class SpectralStack:
         To view the structure of the quadratic function see :func: `beta_func_quad`.
 
         Args:
+            beta_dir (:obj:`str`):
+                Directory name to specify which beta table data to use.
             wv_lim (:obj:`list`):
                 List containing two `float` values used as the
                 wavelength range.
@@ -588,7 +590,6 @@ class SpectralStack:
                 Can be drawn from either the specifc beta_table .dat file or
                 calculated using the Sarzi+2018 quadratic function.
         """
-        beta_dir = self.beta_dir
         beta_table_path = os.path.join(defaults.dap_data_root(),'beta_tables/'+beta_dir+'/')
         if not os.path.isdir(beta_table_path):
             raise ValueError('{0} is not a directory within beta_tables!'.format(beta_table_path))
@@ -645,9 +646,6 @@ class SpectralStack:
         variance based on the S/N in each wavelength segment and the
         number of spaxels in each bin.
 
-        The specific correlation ratio value is drawn from a .dat file
-        residing mangadap.data.beta_tables`.
-
         For more information on how the correlation ratio value is determined
         see :func:`_get_beta_muse`.
 
@@ -655,7 +653,6 @@ class SpectralStack:
             beta_dir (:obj:`str`):
                 Directory name to specify which beta table data to use.
         """
-        self.beta_dir = beta_dir
         nbins = self.flux.shape[0]
 
         # wavelengths segments to loop over when correcting for ivar.
@@ -676,7 +673,7 @@ class SpectralStack:
                 elif (numpy.isfinite(S_N) == False) or (numpy.isfinite(N_spx) == False):
                     continue
                 else:
-                    beta = self._get_beta_muse(wv_lim, S_N, N_spx)
+                    beta = self._get_beta_muse(beta_dir,wv_lim, S_N, N_spx)
                     self.ivar[i][(self.wave >=  wv_lim[0]) & (self.wave <=  wv_lim[1])] = 1/(error_seg[i]*beta)**2
 
     def _stack_with_covariance(self, flux, covariance_mode, covar, ivar=None, sres=None):
@@ -1343,9 +1340,10 @@ class SpectralStack:
                 When registering the wavelengths of the shifted spectra,
                 keep the identical spectral range as input.
             beta_corr (:obj:`bool`, optional):
-                Option to use a correlation ratio to account for the spatial
-                covariance in each bin ID. If True, beta tables are used for
-                the correction. See :func:`_correct_error_muse`.
+                Flag to indicate whether to apply a correlation ratio
+                correction to account for the spatial covariance in
+                the inverse variance. If True, files in mangadap/bbeta_tables
+                are used for the correction. See :func:`_correct_error_muse`.
             beta_dir (:obj:`str`,optional):
                 Directory name to specify which beta table data to use.
                 See :func:`_correct_error_muse`.
@@ -1459,9 +1457,11 @@ class SpectralStack:
                                                    self.sres.reshape(1,-1) if self.sres.ndim == 1
                                                         else self.sres.reshape(outshape[0], -1)
                                                    ).reshape(outshape)
+        # correct ivar with correlation ratio correction
         if beta_corr is True:
             if beta_dir is None:
                 raise ValueError('Must provide a beta table directory name!')
+
             self._correct_error_muse(beta_dir)
 
         # Return the stacked data

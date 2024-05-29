@@ -1340,10 +1340,10 @@ class SpectralStack:
                 When registering the wavelengths of the shifted spectra,
                 keep the identical spectral range as input.
             beta_corr (:obj:`bool`, optional):
-                Flag to indicate whether to apply a correlation ratio
-                correction to account for the spatial covariance in
-                the inverse variance. If True, files in mangadap/bbeta_tables
-                are used for the correction. See :func:`_correct_error_muse`.
+                Flag to indicate whether to apply a correlation ratio correction
+                to account for the spatial covariance in the inverse variance.
+                If True, data in mangadap.data.beta_tables are used for the correction.
+                See :func:`_correct_error_muse`.
             beta_dir (:obj:`str`,optional):
                 Directory name to specify which beta table data to use.
                 See :func:`_correct_error_muse`.

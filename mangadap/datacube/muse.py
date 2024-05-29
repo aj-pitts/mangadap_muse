@@ -92,19 +92,17 @@ class MUSEDataCube(DataCube):
             arbitrary wavelength channel using the RSS file, see
             :func:`mangadap.datacube.datacube.DataCube.covariance_matrix`.
         beta_corr (:obj:`bool`, optional):
-            Option to use a correlation ratio to account for the spatial
-            covariance in each bin ID. If True, beta tables are used for
-            the correction.
-            See :func:`mangadap.proc.spectralstack._correct_error_muse`.
+            Flag to indicate whether to apply a correlation ratio correction
+            to account for the spatial covariance in the inverse variance.
+            If True, data in mangadap.data.beta_tables are used for the correction.
+            See :func:`mangadap.proc.spectralstack_correct_error_muse`.
         beta_dir (:obj:`str`,optional):
-            Directory name to specify which beta table data to use.
-            The correlation ratio to use is based on S/N and number of
-            spaxels in each bin.
-            See :func:`mangadap.proc.spectralstack._correct_error_muse`.
+                Directory name to specify which beta table data to use.
+                See :func:`mangadap.proc.spectralstack_correct_error_muse`.
     """
-    def __init__(self, ifile, objra=None, objdec=None, z=None, vdisp=None, ell=None, \
+    def __init__(self, ifile, objra=None, objdec=None, z=None, vdisp=None, ell=None,
                  pa=None, reff=None, sres_ifile=None,sres_fill=True, covar_ext=None,
-                 beta_corr=None,beta_dir=None,plate=None, ifudesign=None, ebvgal=None):
+                 beta_corr=False,beta_dir=None,plate=None, ifudesign=None, ebvgal=None):
 
         if not os.path.isfile(ifile):
             raise FileNotFoundError('File does not exist: {0}'.format(ifile))
@@ -355,8 +353,6 @@ class MUSEDataCube(DataCube):
         kwargs['sres_ifile'] = sresfil
         kwargs['sres_fill'] = cfg.getbool('sres_fill', default=True)
         kwargs['covar_ext'] = cfg.get('covar_ext', default=None)
-        kwargs['beta_corr'] = cfg.getbool('beta_corr',default=False)
-        kwargs['beta_dir'] = cfg.get('beta_dir',default=None)
         kwargs['vdisp'] = cfg.getfloat('vdisp')
         kwargs['ell'] = cfg.getfloat('ell')
         kwargs['pa'] = cfg.getfloat('pa')

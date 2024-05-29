@@ -1339,6 +1339,11 @@ class SpectralStack:
             keep_range (:obj:`float`, optional):
                 When registering the wavelengths of the shifted spectra,
                 keep the identical spectral range as input.
+            muse_mode (:obj:`bool`, optional):
+                Flag to indicate how to stack the spectra. If True,
+                :func:`stack_without_covariance_muse` performs the
+                stacking process. See :func:`stack_without_covariance_muse`
+                for more information.
             beta_corr (:obj:`bool`, optional):
                 Flag to indicate whether to apply a correlation ratio correction
                 to account for the spatial covariance in the inverse variance.

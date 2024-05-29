@@ -592,7 +592,7 @@ class SpectralStack:
         """
         beta_table_path = os.path.join(defaults.dap_data_root(),'beta_tables/'+beta_dir+'/')
         if not os.path.isdir(beta_table_path):
-            raise ValueError('{0} is not a directory within beta_tables!'.format(beta_table_path))
+            raise ValueError('{0} is not a directory within beta_tables directory!'.format(beta_table_path))
 
         beta_file = glob.glob(beta_table_path + '*' + str(wv_lim[0]) + '_' + str(wv_lim[1]) + '*.dat')
         beta_table = ascii.read(beta_file[0])

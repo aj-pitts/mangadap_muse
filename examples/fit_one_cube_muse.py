@@ -378,7 +378,7 @@ def main(args):
     file_dir = os.path.dirname(os.path.abspath(__file__))
 
     # test cube directory path
-    cube_dir = os.path.join(os.path.dirname(file_dir), 'MUSE_cubes','test_cube')
+    cube_dir = os.path.join(os.path.dirname(file_dir), 'MUSE_cubes','NGC4030')
     # input configuration file path
     config_fil = glob.glob(f"{cube_dir}/*.ini")[0]
 

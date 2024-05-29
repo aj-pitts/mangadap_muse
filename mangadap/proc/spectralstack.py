@@ -1457,6 +1457,7 @@ class SpectralStack:
                                                    self.sres.reshape(1,-1) if self.sres.ndim == 1
                                                         else self.sres.reshape(outshape[0], -1)
                                                    ).reshape(outshape)
+
         # correct ivar with correlation ratio correction
         if beta_corr is True:
             if beta_dir is None:

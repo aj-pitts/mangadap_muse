@@ -1458,7 +1458,7 @@ class SpectralStack:
                                                         else self.sres.reshape(outshape[0], -1)
                                                    ).reshape(outshape)
 
-        # correct ivar with correlation ratio correction
+        # ivar correction that accounts for covariance
         if beta_corr is True:
             if beta_dir is None:
                 raise ValueError('Must provide a beta table directory name!')

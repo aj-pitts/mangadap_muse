@@ -122,7 +122,7 @@ def get_args():
     parser.add_argument('-bc', '--beta_corr', action='store_true', default=False,
                         help='Flag to specify the DAP to perform a correlation correction on the MUSE cube.')
 
-    parser.add_argument('-no-bc', '--no-beta_cor', dest='beta_corr',action='store_false',
+    parser.add_argument('-no-bc', '--no-beta_corr', dest='beta_corr',action='store_false',
                         help='Flag to specify the DAP to not perform a correlation correction on the MUSE cube.')
 
     parser.add_argument('--beta_dir', type=str, default=None,

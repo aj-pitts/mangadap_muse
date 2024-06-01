@@ -217,7 +217,7 @@ def main(args):
         if args.beta_dir is None:
             file_name = os.path.basename(os.path.abspath(__file__))
             raise ValueError('Must provide a beta table directory name to the command line! '
-                             f'{" "*12}Type {file_name} -h on the command line for '
+                             f'{" "*12}Type python {file_name} -h on the command line for '
                              'more information.')
 
     # instantiate object with input parameters

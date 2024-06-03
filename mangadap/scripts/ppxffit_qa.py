@@ -10,6 +10,7 @@ import argparse
 from matplotlib import pyplot, colors, rc, colorbar, ticker, cm
 
 from astropy.io import fits
+from astropy.table import Table
 
 from mangadap.datacube import MaNGADataCube
 from mangadap.par.analysisplan import AnalysisPlanSet
@@ -481,14 +482,39 @@ def rdxqa_data(plt, ifu, plan, drpver, dapver, analysis_path):
     if not os.path.isfile(rdxqa_file):
         raise FileNotFoundError('{0} does not exist!'.format(rdxqa_file))
 
+    # Get the binid shape
+    sc_file = os.path.join(*StellarContinuumModel.default_paths(plt, ifu, plan['drpqa_key'][0],
+                                                                plan['bin_key'][0],
+                                                                plan['continuum_key'][0],
+                                                                drpver=drpver, dapver=dapver,
+                                                                analysis_path=analysis_path))
+    hdu_sc = fits.open(sc_file)
+    spatial_shape = hdu_sc['BINID'].data.shape
+
     with fits.open(rdxqa_file) as hdu:
-        spatial_shape = (int(numpy.sqrt(hdu['SPECTRUM'].data['SNR'].size)),)*2
-        fgood_map = hdu['SPECTRUM'].data['FGOODPIX'].reshape(spatial_shape).T
-        signal_map = numpy.ma.MaskedArray(hdu['SPECTRUM'].data['SIGNAL'].reshape(spatial_shape).T,
-                                          mask=numpy.invert(fgood_map > 0))
-        snr_map = numpy.ma.MaskedArray(hdu['SPECTRUM'].data['SNR'].reshape(spatial_shape).T,
-                                       mask=numpy.invert(fgood_map > 0))
-    return signal_map, snr_map
+        # create maps with bin ID shape
+        fgood_map =  numpy.zeros(spatial_shape)
+        signal_map =  numpy.zeros(spatial_shape)
+        snr_map =  numpy.zeros(spatial_shape)
+
+        # grab spatial indices
+        spatial_indx = hdu['SPECTRUM'].data['SPAT_INDX']
+
+        # reverse spatial indices to match bin ID shape
+        for i in range(spatial_indx.shape[0]):
+            fgood_map[spatial_indx[i][1],spatial_indx[i][0]] = hdu['SPECTRUM'].data['FGOODPIX'][i]
+            signal_map[spatial_indx[i][1],spatial_indx[i][0]] = hdu['SPECTRUM'].data['SIGNAL'][i]
+            snr_map[spatial_indx[i][1],spatial_indx[i][0]] = hdu['SPECTRUM'].data['SNR'][i]
+
+        signal_map_masked = numpy.ma.MaskedArray(signal_map,mask=numpy.invert(fgood_map > 0))
+        snr_map_masked = numpy.ma.MaskedArray(snr_map,mask=numpy.invert(fgood_map > 0))
+        # spatial_shape = (int(numpy.sqrt(hdu['SPECTRUM'].data['SNR'].size)),)*2
+        # fgood_map = hdu['SPECTRUM'].data['FGOODPIX'].reshape(spatial_shape).T
+        # signal_map = numpy.ma.MaskedArray(hdu['SPECTRUM'].data['SIGNAL'].reshape(spatial_shape).T,
+        #                                mask=numpy.invert(fgood_map > 0))
+        # snr_map = numpy.ma.MaskedArray(hdu['SPECTRUM'].data['SNR'].reshape(spatial_shape).T,
+        #                                mask=numpy.invert(fgood_map > 0))
+    return signal_map_masked, snr_map_masked
 
     
 def continuum_component_data(plt, ifu, plan, drpver, dapver, analysis_path, signal_map=None,

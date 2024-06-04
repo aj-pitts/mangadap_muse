@@ -9,7 +9,6 @@ from IPython import embed
 class DAP_MUSE:
     """
     Main wrapper class for running the DAP on a MUSE cube.
-
     """
     def __init__(self,galname=None,plate=None,ifudesign=None,bin_key=None,
                  beta_corr=False,beta_dir=None):
@@ -62,7 +61,7 @@ class DAP_MUSE:
                 config_file (str):
                     Configuration file containing the initial galaxy inputs.
                directory_path (str):
-                    Path to directory containing the MUSE cube file.
+                    Directory path containing the MUSE cube file.
                analysis_path (str):
                    Top-level directory for the DAP output MUSE_cubes; default is
                    defined by :func:`mangadap.config.defaults.dap_analysis_path`.
@@ -84,6 +83,19 @@ class DAP_MUSE:
                          analysis_path=analysis_path)
 
     def run_MUSE_cube(self,config_fil=None,directory_path=None,analysis_plan=None):
+        """
+        Wrapper function to run the MaNGA DAP on a MUSE cube using input arguments from
+        both the command line and configuration file.
+
+        Args:
+                config_fil (:obj:`str`):
+                    Configuration file containing the initial galaxy inputs.
+               directory_path (:obj:`str`):
+                    Directory path containing the MUSE cube file.
+               analysis_plan (:class:`mangadap.par.analysisplan.AnalysisPlanSet`):
+                   Top-level directory for the DAP output MUSE_cubes; default is
+                   defined by :func:`mangadap.config.defaults.dap_analysis_path`.
+        """
 
         # fit_one_cube_muse_test.py directory path
         file_dir = os.path.dirname(os.path.abspath(__file__))
@@ -95,10 +107,9 @@ class DAP_MUSE:
             os.makedirs(output_root_dir)
 
         # galaxy output directory name
-        # beta subdirectory in mangadap.MUSE_cubes.beta_tables should have the same name as gal_name
         gal_name = self.galname
         bin_method = analysis_plan['bin_key'][0]
-        output_gal_dir = os.path.join(output_root_dir, gal_name + '-' + bin_method)
+        output_gal_dir = os.path.join(output_root_dir,f'{gal_name}-{bin_method}')
         if not os.path.isdir(output_gal_dir):
             os.makedirs(output_gal_dir)
 
@@ -117,39 +128,54 @@ class DAP_MUSE:
 
 # -----------------------------------------------------------------------------
 def get_args():
-    parser = argparse.ArgumentParser(description='Wrapper File to run the MaNGA DAP on a MUSE cube.')
+    """
+    Command line input arguments.
+
+    Returns:
+            :class:`argparse.Namespace`: Converts argument
+            strings to objects and assigns them as attributes to the class `Namespace`.
+    """
+    parser = argparse.ArgumentParser(description='File to run the MaNGA DAP on a MUSE cube.')
+
+    parser.add_argument('galname', type=str,help='input galaxy name.')
+
+    parser.add_argument('bin_method', type=str, help='input DAP spatial binning method.')
 
     parser.add_argument('-bc', '--beta_corr', action='store_true', default=False,
-                        help='Flag to specify the DAP to perform a correlation correction on the MUSE cube.')
+                        help='Flag specifying the DAP to perform a correlation correction on the MUSE cube.')
 
-    parser.add_argument('-no-bc', '--no-beta_corr', dest='beta_corr',action='store_false',
-                        help='Flag to specify the DAP to not perform a correlation correction on the MUSE cube.')
-
-    parser.add_argument('--beta_dir', type=str, default=None,
-                        help='Beta table data directory name for the correlation correction process.')
+    parser.add_argument('-nc', '--no-beta_corr', dest='beta_corr',action='store_false',
+                        help='Flag specifying the DAP to not perform a correlation correction on the MUSE cube.')
     return parser.parse_args()
 
 # -----------------------------------------------------------------------------
 def main(args):
+    """
+    Function that defines the input arguments and passes it down to the :class:`DAP_MUSE`.
 
-    # fit_one_cube_muse_test.py directory path
+    Args:
+        args (:class:`argsparse.ArgumentParser`):
+            Instance that takes in command line arguments and converts them
+            to attributes associated with the :object;`args`.
+    """
+    # fit_one_cube_muse.py directory path
     file_dir = os.path.dirname(os.path.abspath(__file__))
 
-    # test cube directory path
-    cube_dir = os.path.join(os.path.dirname(file_dir), 'MUSE_cubes','NGC4030')
+    # cube directory path
+    cube_dir = os.path.join(os.path.dirname(file_dir), 'MUSE_cubes', args.galname)
+    if not os.path.isdir(cube_dir):
+        raise ValueError(f'{cube_dir} is not a directory within MUSE_cubes!')
+
     # input configuration file path
     config_fil = glob.glob(f"{cube_dir}/*.ini")[0]
 
-    # get plate and ifu parameter values from config file
+    # get parameter values from config file
     cfg = DefaultConfig(config_fil, interpolate=True)
     plate = cfg.getint('plate',default=None)
     ifu = cfg.getint('ifu',default=None)
-    galname = cfg.get('galname',default=None)
 
     if plate is None or ifu is None:
         raise ValueError('Configuration file must define the plate and IFU.')
-    if galname is None:
-        raise ValueError('Configuration file muse define the galaxy name.')
 
     # Define how you want to analyze the MUSE_cubes
     plan = AnalysisPlanSet([AnalysisPlan(
@@ -166,7 +192,7 @@ def main(args):
                                         #   bin size length (in units of arcsec).
                                         # - Available SQUARE method bin size options are
                                         #   SQUARE2.0, SQUARE1.0 and SQUARE0.6
-                                        bin_key='SQUARE2.0',
+                                        bin_key=args.bin_method,
                                         # Overwrite any existing spatial binning reference files.
                                         # Same as dqpa_clobber
                                         bin_clobber=True,
@@ -205,25 +231,19 @@ def main(args):
                                         # Overwrite any existing spectral-index reference files
                                         spindex_clobber=True)])
 
-    # argparse check
-    if not args.beta_corr:
-        if args.beta_dir is not None:
-            file_name = os.path.basename(os.path.abspath(__file__))
-            raise ValueError('Must enter flag -bc or --beta_corr on the command line '
-                             'if providing a beta table directory! \n'
-                            f'{" "*12}Type python {file_name} -h on the command line for '
-                             'more information.')
+    # check if beta table directory name is same as the input galaxy name
+    if args.beta_corr:
+        beta_dir_ = args.galname
+        beta_table_dir = os.path.join(defaults.dap_data_root(), 'beta_tables', beta_dir_)
+        if not os.path.isdir(beta_table_dir):
+            raise ValueError(f'Galaxy name does not match directory name within beta_tables. '
+                             f"'{beta_table_dir}' is not a directory!")
     else:
-        if args.beta_dir is None:
-            file_name = os.path.basename(os.path.abspath(__file__))
-            raise ValueError('Must provide a beta table directory name to the command line! '
-                             f'{" "*12}Type python {file_name} -h on the command line for '
-                             'more information.')
+        beta_dir_ = None
 
     # instantiate object with input parameters
-    muse_obj = DAP_MUSE(galname=galname,plate=plate,
-                        ifudesign=ifu, beta_corr=args.beta_corr,beta_dir=args.beta_dir)
-
+    muse_obj = DAP_MUSE(galname=args.galname,plate=plate,
+                        ifudesign=ifu, beta_corr=args.beta_corr,beta_dir=beta_dir_)
     # fit MUSE cube!
     muse_obj.run_MUSE_cube(config_fil=config_fil,directory_path=cube_dir,analysis_plan=plan)
 
@@ -238,6 +258,7 @@ if __name__ == '__main__':
     from mangadap.par.analysisplan import AnalysisPlan, AnalysisPlanSet
     from mangadap.scripts.ppxffit_qa import ppxffit_qa_plot
     from mangadap.util.parser import DefaultConfig
+    from mangadap.config import defaults
 
     # pass args to main class
     main(args)

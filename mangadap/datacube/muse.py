@@ -306,7 +306,7 @@ class MUSEDataCube(DataCube):
 
 
     @classmethod
-    def from_config(cls, cfgfile, directory_path=None):
+    def from_config(cls, cfgfile, cube_file=None, sres_file=None, directory_path=None):
         """
         Construct a :class:`mangadap.datacube.muse.MUSEDataCube` object from a
         configuration file.
@@ -324,11 +324,11 @@ class MUSEDataCube(DataCube):
                 The exact path to the reduced MUSE data file. Overrides any value in the
                 configuration file.
         """
+        # MUSE cube file path
+        ifile = cube_file
+
         # Read the configuration file
         cfg = DefaultConfig(cfgfile, interpolate=True)
-
-        cubefil = cfg.get('cubefil')
-        sresfil = cfg.get('sresfil')
 
         # Set the attributes, forcing a known type
         plate = cfg.getint('plate')
@@ -336,11 +336,6 @@ class MUSEDataCube(DataCube):
         if plate is None or ifu is None:
             raise ValueError('Configuration file must define the plate and IFU.')
         log = cfg.getbool('log', default=False)
-
-        # Overwrite what's in the file with the method keyword arguments
-        _directory_path = cfg.get('directory_path') if directory_path is None else directory_path
-
-        ifile = _directory_path + cubefil
 
         # Get the other possible keywords
         # TODO: Come up with a better way to do this
@@ -350,7 +345,7 @@ class MUSEDataCube(DataCube):
         kwargs['z'] = cfg.getfloat('z')
         kwargs['objra'] = cfg.getfloat('objra')
         kwargs['objdec'] = cfg.getfloat('objdec')
-        kwargs['sres_ifile'] = sresfil
+        kwargs['sres_ifile'] = sres_file
         kwargs['sres_fill'] = cfg.getbool('sres_fill', default=True)
         kwargs['covar_ext'] = cfg.get('covar_ext', default=None)
         kwargs['vdisp'] = cfg.getfloat('vdisp')

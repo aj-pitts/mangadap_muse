@@ -10,7 +10,7 @@ class DAP_MUSE:
     """
     Main wrapper class for running the DAP on a MUSE cube.
     """
-    def __init__(self,galname=None,plate=None,ifudesign=None,bin_key=None,
+    def __init__(self,galname=None, plate=None,ifudesign=None,bin_key=None,
                  beta_corr=False,beta_dir=None):
 
         self.galname = galname
@@ -20,7 +20,7 @@ class DAP_MUSE:
         self.beta_corr = beta_corr
         self.beta_dir = beta_dir
 
-    def fit_one_cube_muse(self,config_file, directory_path=None,analysis_path=None,
+    def fit_one_cube_muse(self,config_file, cube_file=None, sres_file=None, directory_path=None,analysis_path=None,
                           analysis_plan=None):
         r"""
            Method to execute the MaNGA DAP on a single MUSE cube.
@@ -72,7 +72,7 @@ class DAP_MUSE:
         """
 
         # mask the first pixel in the cube
-        cube = MUSEDataCube.from_config(config_file)
+        cube = MUSEDataCube.from_config(config_file,cube_file=cube_file, sres_file=sres_file)
         cube.mask[0, 0, :] = True
         # input correlation correction parameters
         cube.beta_corr = self.beta_corr
@@ -82,7 +82,7 @@ class DAP_MUSE:
         return manga_dap(cube, analysis_plan, verbose=2, directory_path=directory_path,
                          analysis_path=analysis_path)
 
-    def run_MUSE_cube(self,config_fil=None,directory_path=None,analysis_plan=None):
+    def run_MUSE_cube(self,config_fil=None,cube_file=None, sres_file=None,directory_path=None,analysis_plan=None):
         """
         Wrapper function to run the MaNGA DAP on a MUSE cube using input arguments from
         both the command line and configuration file.
@@ -120,7 +120,8 @@ class DAP_MUSE:
             output_gal_sub_dir = os.path.join(output_gal_dir, 'BETA-CORR')
 
         # fit a MUSE cube!
-        self.fit_one_cube_muse(config_fil, directory_path=directory_path, analysis_path=output_gal_sub_dir,
+        self.fit_one_cube_muse(config_fil, cube_file=cube_file, sres_file=sres_file,
+                               directory_path=directory_path, analysis_path=output_gal_sub_dir,
                                analysis_plan=analysis_plan)
         # create output plot from ppxf fitting results
         ppxffit_qa_plot(self.plate, self.ifudesign, analysis_plan ,drpver=None, redux_path=directory_path,
@@ -161,13 +162,36 @@ def main(args):
     # fit_one_cube_muse.py directory path
     file_dir = os.path.dirname(os.path.abspath(__file__))
 
-    # cube directory path
-    cube_dir = os.path.join(os.path.dirname(file_dir), 'MUSE_cubes', args.galname)
-    if not os.path.isdir(cube_dir):
-        raise ValueError(f'{cube_dir} is not a directory within MUSE_cubes!')
+    # main cube directory path
+    main_cube_dir = os.path.join(os.path.dirname(file_dir), 'MUSE_cubes')
 
+    # spectral resolution file path
+    sres_file = os.path.join(main_cube_dir, 'LSF-Config_MUSE_WFM')
+    if not os.path.isfile(sres_file):
+        raise ValueError(f'LSF-Config_MUSE_WFM does not exist within {main_cube_dir}')
+
+    # cube directory path
+    cube_dir = os.path.join(main_cube_dir, args.galname)
+    if not os.path.isdir(cube_dir):
+        raise ValueError(f'{cube_dir} is not a directory within /MUSE_cubes')
+
+    # check if there is only one MUSE cube file in the cube directory
+    if len(glob.glob(f"{cube_dir}/*.fits")) > 1:
+        raise ValueError(f'Multiple .fits files within {cube_dir}. {cube_dir} directory must only have '
+                         f'MUSE cube .fits file.')
+    # input cube file path
+    cube_file = glob.glob(f"{cube_dir}/*.fits")[0]
+    if not os.path.isfile(cube_file):
+        raise ValueError(f'{os.path.basename(cube_file)} does not exist within {cube_dir}')
+
+    # check if there is only one config file in the cube directory
+    if len(glob.glob(f"{cube_dir}/*.ini")) > 1:
+        raise ValueError(f'Multiple .ini files within {cube_dir}. {cube_dir} directory must only have '
+                         f'configuration file.')
     # input configuration file path
     config_fil = glob.glob(f"{cube_dir}/*.ini")[0]
+    if not os.path.isfile(cube_file):
+        raise ValueError(f'{os.path.basename(cube_file)} does not exist within {cube_dir}')
 
     # get parameter values from config file
     cfg = DefaultConfig(config_fil, interpolate=True)
@@ -236,8 +260,9 @@ def main(args):
         beta_dir_ = args.galname
         beta_table_dir = os.path.join(defaults.dap_data_root(), 'beta_tables', beta_dir_)
         if not os.path.isdir(beta_table_dir):
-            raise ValueError(f'Galaxy name does not match directory name within beta_tables. '
-                             f"'{beta_table_dir}' is not a directory!")
+            raise ValueError(f'Galaxy name does not match any directory name within '
+                             f"'{os.path.join(defaults.dap_data_root(), 'beta_tables')}'. "
+                             f"Input '{beta_table_dir}' is not a directory.")
     else:
         beta_dir_ = None
 
@@ -245,7 +270,8 @@ def main(args):
     muse_obj = DAP_MUSE(galname=args.galname,plate=plate,
                         ifudesign=ifu, beta_corr=args.beta_corr,beta_dir=beta_dir_)
     # fit MUSE cube!
-    muse_obj.run_MUSE_cube(config_fil=config_fil,directory_path=cube_dir,analysis_plan=plan)
+    muse_obj.run_MUSE_cube(config_fil=config_fil,cube_file=cube_file, sres_file=sres_file,
+                           directory_path=cube_dir,analysis_plan=plan)
 
 #-----------------------------------------------------------------------------
 if __name__ == '__main__':

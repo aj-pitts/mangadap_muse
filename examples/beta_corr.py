@@ -499,9 +499,9 @@ class CubeData:
                 beta_SN_bin = SN_dict[SN_key]['beta_bin']
 
                 if SN_key == 'SN_CHANNEL3':
-                    label = f'{SN_range[0]} < SNR'
+                    label = f'{SN_range[0]} < SN'
                 else:
-                    label = f'{SN_range[0]} < SNR < {SN_range[1]}'
+                    label = f'{SN_range[0]} < SN < {SN_range[1]}'
 
                 ax.hist(beta_SN_bin, bins=beta_bins, label=label,
                         histtype='step', stacked=False, alpha=0.9, fill=False)
@@ -603,9 +603,9 @@ class CubeData:
                                 violin.set_linewidth(2)
 
                         if SN_key == 'SN_CHANNEL3':
-                            SN_str = f'{SN_range[0]} < SNR'
+                            SN_str = f'{SN_range[0]} < SN'
                         else:
-                            SN_str = f'{SN_range[0]} < SNR < {SN_range[1]}'
+                            SN_str = f'{SN_range[0]} < SN < {SN_range[1]}'
 
                         # add to legend handle
                         if bin_modes[bin_modes > -999][-1] == bin_mode:
@@ -624,7 +624,7 @@ class CubeData:
         plt.ylabel(r'$\beta$ (rN/N)')
         plt.xlabel('Mode $N_{spx}$')
         # {x:.2f}
-        plt.legend(handles=color_patches, fontsize='x-large', loc='upper center', frameon=False)
+        plt.legend(handles=color_patches, fontsize='xx-large', loc='upper center', frameon=False)
 
         plt.figtext(x=0.15, y=0.50, s='Parameter Fits\n', fontsize=16)
         text_str = f'a = {a:.2f}, b = {b:.2f}'

@@ -133,8 +133,12 @@ class DAP_MUSE:
             cube = CubeData(galname=self.galname,bin_key=self.bin_key,plate=self.plate,ifu=self.ifudesign)
             # get beta values
             cube.get_beta()
+            # save histogram plots
+            cube.mk_hist_plots(show_plots=False, save_plots=True)
             # write files to mangadap/data/beta_tables directory under galaxy name
             cube.create_beta_tables()
+            # save violin plots
+            cube.mk_violin_plots(show_plots=False, save_plots=True)
 # -----------------------------------------------------------------------------
 def get_args():
     """

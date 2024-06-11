@@ -5,6 +5,7 @@ import glob
 import argparse
 
 from IPython import embed
+from beta_corr import CubeData
 
 class DAP_MUSE:
     """
@@ -127,6 +128,13 @@ class DAP_MUSE:
         ppxffit_qa_plot(self.plate, self.ifudesign, analysis_plan ,drpver=None, redux_path=directory_path,
                         dapver=None, analysis_path=output_gal_sub_dir, tpl_flux_renorm=None)
 
+        if not self.beta_corr:
+            # initialize object and write beta correction files
+            cube = CubeData(galname=self.galname,bin_key=self.bin_key,plate=self.plate,ifu=self.ifudesign)
+            # get beta values
+            cube.get_beta()
+            # write files to mangadap/data/beta_tables directory under galaxy name
+            cube.create_beta_tables()
 # -----------------------------------------------------------------------------
 def get_args():
     """
@@ -267,7 +275,7 @@ def main(args):
         beta_dir_ = None
 
     # instantiate object with input parameters
-    muse_obj = DAP_MUSE(galname=args.galname,plate=plate,
+    muse_obj = DAP_MUSE(galname=args.galname,plate=plate,bin_key=plan['bin_key'][0],
                         ifudesign=ifu, beta_corr=args.beta_corr,beta_dir=beta_dir_)
     # fit MUSE cube!
     muse_obj.run_MUSE_cube(config_fil=config_fil,cube_file=cube_file, sres_file=sres_file,

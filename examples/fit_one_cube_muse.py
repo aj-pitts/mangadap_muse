@@ -135,7 +135,7 @@ class DAP_MUSE:
             cube.get_beta()
             # save histogram plots
             cube.mk_hist_plots(show_plots=False, save_plots=True)
-            # write files to mangadap/data/beta_tables directory under galaxy name
+            # write files to mangadap/data/beta_tables directory under the galaxy name
             cube.create_beta_tables()
             # save violin plots
             cube.mk_violin_plots(show_plots=False, save_plots=True)

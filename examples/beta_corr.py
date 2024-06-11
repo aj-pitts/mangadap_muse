@@ -33,13 +33,18 @@ plt.rcParams['ytick.minor.size'] = 8
 class CubeData:
 
     def __init__(self, galname=None, bin_key=None, plate=None, ifu=None):
+
         # mangadap_muse root directory path
         mangadap_muse_dir = os.path.dirname(os.path.dirname(defaults.dap_data_root()))
         # output directory path
         output_root_dir = os.path.join(mangadap_muse_dir, 'outputs')
 
         self.galname = galname
-        output_gal_dir = os.path.join(output_root_dir, f"{self.galname}-{bin_key}")
+        self.bin_key = bin_key
+
+        output_gal_dir = os.path.join(output_root_dir, f"{self.galname}-{self.bin_key}")
+        if not os.path.isdir(output_gal_dir):
+            raise ValueError(f'{output_gal_dir} is not a directory within {output_root_dir}.')
 
         # output beta plot directory
         output_beta_dir = os.path.join(output_gal_dir, 'beta_plots')
@@ -47,13 +52,12 @@ class CubeData:
             os.makedirs(output_beta_dir)
         self.output_beta_dir = output_beta_dir
 
-
         # non-corrected MUSE cube directory
         output_gal_sub_dir = os.path.join(output_gal_dir, 'NO-CORR')
         # key methdos from analysis plan
         analysisplan_methods = 'MILESHC-MASTARHC2-NOISM'
         # cube directory
-        cube_dir = os.path.join(output_gal_sub_dir, f"{bin_key}-{analysisplan_methods}", plate, ifu)
+        cube_dir = os.path.join(output_gal_sub_dir, f"{bin_key}-{analysisplan_methods}", str(plate), str(ifu))
         # paths to the LOGCUBE and MAPS files
         cube_file_path = os.path.join(cube_dir,
                                       f"manga-{plate}-{ifu}-LOGCUBE-{bin_key}-{analysisplan_methods}.fits")
@@ -288,7 +292,7 @@ class CubeData:
                         beta_all_dict[all_key]['beta_medians'].append(-999)
 
                     else:
-                        beta_all_dict[all_key]['bin_modes'].append(stats.mode(bin_array)[0])
+                        beta_all_dict[all_key]['bin_modes'].append(stats.mode(bin_array)[0][0])
                         beta_all_dict[all_key]['beta_medians'].append(np.median(beta_array))
 
             self.wv_dict[wv_key]['N_spx_dict'] = N_spx_dict
@@ -335,7 +339,7 @@ class CubeData:
             beta_func_quad = self.beta_func_quad
             # get parameters
             # fit data points usings Sarzi+2018 relationshiop
-            popt_sarzi, pcov_sarzi = curve_fit(beta_func_quad, bin_fit, beta_fit)
+            popt_sarzi, pcov_sarzi = curve_fit(beta_func_quad, np.array(bin_fit),np.array(beta_fit))
 
             # create an Astropy data table containting each median beta histogram distribution
             # for a given S/N and N_spx size

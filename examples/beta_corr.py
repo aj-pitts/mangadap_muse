@@ -5,7 +5,7 @@ import os
 from scipy import stats
 from scipy.optimize import curve_fit
 from astropy.io import fits
-from astropy.table import Table , unique
+from astropy.table import Table
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
@@ -31,7 +31,6 @@ plt.rcParams['xtick.minor.size'] = 8
 plt.rcParams['ytick.minor.size'] = 8
 
 
-
 class CubeData:
 
     def __init__(self, galname=None, bin_key=None, plate=None, ifu=None):
@@ -48,6 +47,7 @@ class CubeData:
         if not os.path.isdir(output_beta_dir):
             os.makedirs(output_beta_dir)
         self.output_beta_dir = output_beta_dir
+
 
         # non-corrected MUSE cube directory
         output_gal_sub_dir = os.path.join(output_gal_dir, 'NO-CORR')
@@ -110,33 +110,33 @@ class CubeData:
 
         return N_spx_dict
 
-    def Beta_all_dict(self):
+    def beta_all_dict(self):
         # create a dictionary containing the different N_spx bins
-        Beta_all_dict = {}
-        Beta_all_channel_keys = ['SN_range', 'bin_size_all', 'beta_all', 'bin_modes', 'beta_medians']
+        beta_all_dict = {}
+        beta_all_channel_keys = ['SN_range', 'bin_size_all', 'beta_all', 'bin_modes', 'beta_medians']
 
         SN_lims = [[0, 50], [50, 75], [75, 100], [100, 1000]]
 
         for i in range(len(SN_lims)):
             channel = f'SN_CHANNEL{i}'
-            Beta_all_dict[channel] = {}
+            beta_all_dict[channel] = {}
 
-            for key in Beta_all_channel_keys:
+            for key in beta_all_channel_keys:
                 if key == 'SN_range':
-                    Beta_all_dict[channel][key] = SN_lims[i]
+                    beta_all_dict[channel][key] = SN_lims[i]
 
                 elif (key == 'bin_size_all') or (key == 'beta_all'):
-                    Beta_all_dict[channel][key] = []
+                    beta_all_dict[channel][key] = []
 
                 else:
-                    Beta_all_dict[channel][key] = []
+                    beta_all_dict[channel][key] = []
 
-        return Beta_all_dict
+        return beta_all_dict
 
     def wv_dict(self):
         # create a dictionary for each wavelength channel
         wv_dict = {}
-        wv_channel_keys = ['wv_range', 'bin_masks', 'N_spx', 'SN', 'beta', 'N_spx_dict', 'Beta_all_dict']
+        wv_channel_keys = ['wv_range', 'bin_masks', 'N_spx', 'SN', 'beta', 'N_spx_dict', 'beta_all_dict']
 
         # wavelength ranges
         wv_lims = [[4751.42, 5212], [5212, 5672], [5672, 6132], [6132, 6592],
@@ -153,8 +153,8 @@ class CubeData:
                 elif key == 'N_spx_dict':
                     wv_dict[channel][key] = self.N_spx_dict()
                 # add Beta_all dictionary
-                elif key == 'Beta_all_dict':
-                    wv_dict[channel][key] = self.Beta_all_dict()
+                elif key == 'beta_all_dict':
+                    wv_dict[channel][key] = self.beta_all_dict()
                 else:
                     wv_dict[channel][key] = None
 
@@ -247,7 +247,7 @@ class CubeData:
             # loop through and place each spaxel bin size and beta value into their respective
             # N_spx and S/N bin
             N_spx_dict = self.wv_dict[wv_key]['N_spx_dict']
-            Beta_all_dict = self.wv_dict[wv_key]['Beta_all_dict']
+            beta_all_dict = self.wv_dict[wv_key]['beta_all_dict']
 
             for N_spx_key in N_spx_dict.keys():
                 # filter bin size, S/N and beta values according to number of spaxel (N_spx) range
@@ -271,66 +271,61 @@ class CubeData:
 
                 N_spx_dict[N_spx_key]['SN_dict'] = SN_dict
 
-            for all_key in Beta_all_dict.keys():
+            for all_key in beta_all_dict.keys():
                 for N_spx_key in N_spx_dict.keys():
                     bin_size = N_spx_dict[N_spx_key]['SN_dict'][all_key]['bin_size']
                     beta_bin = N_spx_dict[N_spx_key]['SN_dict'][all_key]['beta_bin']
 
-                    Beta_all_dict[all_key]['bin_size_all'].append(bin_size)
-                    Beta_all_dict[all_key]['beta_all'].append(beta_bin)
+                    beta_all_dict[all_key]['bin_size_all'].append(bin_size)
+                    beta_all_dict[all_key]['beta_all'].append(beta_bin)
 
-            for all_key in Beta_all_dict.keys():
-                bin_size_all = Beta_all_dict[all_key]['bin_size_all']
-                beta_all = Beta_all_dict[all_key]['beta_all']
+            for all_key in beta_all_dict.keys():
+                bin_size_all = beta_all_dict[all_key]['bin_size_all']
+                beta_all = beta_all_dict[all_key]['beta_all']
 
                 for bin_array, beta_array in zip(bin_size_all, beta_all):
                     if len(bin_array) == 0:
-                        Beta_all_dict[all_key]['bin_modes'].append(-999)
-                        Beta_all_dict[all_key]['beta_medians'].append(-999)
+                        beta_all_dict[all_key]['bin_modes'].append(-999)
+                        beta_all_dict[all_key]['beta_medians'].append(-999)
 
                     else:
-                        Beta_all_dict[all_key]['bin_modes'].append(stats.mode(bin_array)[0])
-                        Beta_all_dict[all_key]['beta_medians'].append(np.median(beta_array))
+                        beta_all_dict[all_key]['bin_modes'].append(stats.mode(bin_array)[0])
+                        beta_all_dict[all_key]['beta_medians'].append(np.median(beta_array))
 
             self.wv_dict[wv_key]['N_spx_dict'] = N_spx_dict
-            self.wv_dict[wv_key]['Beta_all_dict'] = Beta_all_dict
+            self.wv_dict[wv_key]['beta_all_dict'] = beta_all_dict
 
-    def write_beta_tables(self):
+    # Sarzi+2018 quadratic function
+    def beta_func_quad(self, N_spx, a, b):
+        return 1 + a * (np.log10(N_spx)) ** b
 
-        def beta_func_quad(self, N_spx, a, b):
-            return 1 + a * (np.log10(N_spx)) ** b
+    def create_beta_tables(self):
 
         # dictionary for each wavelength channel
         wv_dict = self.wv_dict
 
         for wv_key in wv_dict.keys():
             # dictionary for each wavelength channel
-            wv_lim = wv_dict[wv_key]['wv_range']
-            Beta_all_dict = wv_dict[wv_key]['Beta_all_dict']
+            wv_range = wv_dict[wv_key]['wv_range']
+            beta_all_dict = wv_dict[wv_key]['beta_all_dict']
 
             # list to store median beta values to write into .dat file
             beta_table_data = []
-
-            # list to store values for plotting
-            bin_all = []
-            beta_all = []
 
             # list to store for values for fitting Sarzi+2018 relation
             bin_fit = []
             beta_fit = []
 
             # loop through each S/N channel within Beta_all dicitonary
-            for all_key in Beta_all_dict.keys():
-                bin_modes = Beta_all_dict[all_key]['bin_modes']
-                beta_medians = Beta_all_dict[all_key]['beta_medians']
+            for all_key in beta_all_dict.keys():
+                bin_modes = beta_all_dict[all_key]['bin_modes']
+                beta_medians = beta_all_dict[all_key]['beta_medians']
 
                 # don't keep last beta median value because the correlation
                 # correction does not do well for N_spx > 100
                 beta_table_data.append(beta_medians[:3])
 
                 for bin_mode, beta_median in zip(bin_modes, beta_medians):
-                    bin_all.append(bin_mode)
-                    beta_all.append(beta_median)
 
                     if bin_mode == -999:
                         continue
@@ -338,26 +333,30 @@ class CubeData:
                         bin_fit.append(bin_mode)
                         beta_fit.append(beta_median)
 
+            beta_func_quad = self.beta_func_quad
             # get parameters
             # fit data points usings Sarzi+2018 relationshiop
             popt_sarzi, pcov_sarzi = curve_fit(beta_func_quad, bin_fit, beta_fit)
 
-            # create data table containting each median beta histogram distribution
-            # for a given S/N and N_spax size
-            beta_T = Table([beta_table_data[0], beta_table_data[1], beta_table_data[2],
-                            [popt_sarzi[0], -999, -999], [popt_sarzi[1], -999, -999]],
-                           names=('S_N_0-50', 'S_N_50-75', 'S_N_75-100', 'param_fit_a', 'param_fit_b'))
+            # create an Astropy data table containting each median beta histogram distribution
+            # for a given S/N and N_spx size
+            beta_table = Table([beta_table_data[0], beta_table_data[1], beta_table_data[2],
+                                [popt_sarzi[0], -999, -999], [popt_sarzi[1], -999, -999]],
+                               names=('S_N_0-50', 'S_N_50-75', 'S_N_75-100', 'param_fit_a', 'param_fit_b'))
 
-            # create the beta table directory
+            self.wv_dict[wv_key]['beta_table'] = beta_table
+
+            # write the beta table into a .dat file
             beta_tables_dir = os.path.join(defaults.dap_data_root(), 'beta_tables')
             beta_tables_gal_dir = os.path.join(beta_tables_dir, self.galname)
             if not os.path.isdir(beta_tables_gal_dir):
                 os.makedirs(beta_tables_gal_dir)
 
             # create the file name
-            file_name = f'beta_corr_{wv_lim[0]}_{wv_lim[1]}.dat'
+            file_name = f'beta_corr_{wv_range[0]}_{wv_range[1]}.dat'
             beta_table_path = os.path.join(beta_tables_gal_dir, file_name)
-            beta_T.write(beta_table_path, format='ascii', overwrite=True)
+            beta_table.write(beta_table_path, format='ascii', overwrite=True)
+            logging.info(f'Writing {file_name} to {beta_tables_gal_dir}')
 
     def mk_residual_plot(self, wv_channel, bin_id, zoom=None):
         # plot the flux, model and error in main plot
@@ -395,7 +394,6 @@ class CubeData:
 
         # make plots
         fig = plt.figure(figsize=(10, 6))
-        # plt.rcParams['figure.figsize'] = (10,6)
 
         # create an extra masked plot if there are masked pixels
         if flux.mask.any() == True:
@@ -470,15 +468,14 @@ class CubeData:
 
             axs[1].set_xlabel(r'Wavelength ($\mathrm{\AA}$)', fontsize=20)
             axs[1].set_ylabel(r'$\beta$', fontsize=20)
-            axs[1].set_ylim(-0.5, np.median(beta_good_masked) * 2.2);
-            # axs[1].legend(fontsize='large',frameon=False,loc='upper left');
+            axs[1].set_ylim(-0.5, np.median(beta_good_masked) * 2.2)
 
             # zoom must be a list with two wavelegnth values in it
             if zoom is not None:
                 axs[0].set_xlim(zoom[0], zoom[1])
                 axs[1].set_xlim(zoom[0], zoom[1])
 
-    def mk_hist_plot(self, wv_channel):
+    def mk_hist_plot(self, wv_channel, show_plot=True, save_plot=False):
         # wavelength channel dictionary
         wv_dict = self.wv_dict[f'WAVE_CHANNEL{wv_channel}']
 
@@ -496,13 +493,17 @@ class CubeData:
 
             for i, SN_key in enumerate(SN_dict.keys()):
                 SN_range = SN_dict[SN_key]['SN_range']
-                bin_size_SN_bin = SN_dict[SN_key]['bin_size']
                 beta_SN_bin = SN_dict[SN_key]['beta_bin']
 
-                ax.hist(beta_SN_bin, bins=beta_bins, label=f'({SN_range[0]} < SNR < {SN_range[1]})',
+                if SN_key == 'SN_CHANNEL3':
+                    label = f'{SN_range[0]} < SNR'
+                else:
+                    label = f'{SN_range[0]} < SNR < {SN_range[1]}'
+
+                ax.hist(beta_SN_bin, bins=beta_bins, label=label,
                         histtype='step', stacked=False, alpha=0.9, fill=False)
                 ax.tick_params(axis='both', which='both', direction='in', top=True, right=True, length=5)
-                # ax.set_xticks(np.arange(1,10))
+                ax.set_xticks(np.arange(1, 10))
 
                 if np.isnan(np.median(beta_SN_bin)) == True:
                     continue
@@ -519,18 +520,141 @@ class CubeData:
             else:
                 ax.set_title(f'{N_spx_range[0]} < $N_{{\mathrm{{spax}}}}$ < {N_spx_range[1]}', fontsize=22)
 
-            # ax.set_xlim(0,10)
+            ax.set_xlim(0, 10)
             ax.set_xlabel(r'$\beta$ (rN/N)', fontsize=22)
             ax.set_ylabel('Counts')
 
         fig.suptitle(f' $\\beta$ Histograms for Wavelength Channel {wv_channel} ({wv_dict["wv_range"][0]}-'
-                     f'{wv_dict["wv_range"][1]} $\mathrm{{\AA}}$)', fontsize=25, y=1.03);
+                     f'{wv_dict["wv_range"][1]} $\mathrm{{\AA}}$)', fontsize=25, y=1.03)
 
-        # create historgram directory if it doesn't exist already
-        beta_hist_dir = os.path.join(self.output_beta_dir, 'beta_histogram_plots')
-        if not os.path.isdir(beta_hist_dir):
-            os.makedirs(beta_hist_dir)
+        # save the figure if save_plot is True
+        if save_plot:
+            # create historgram directory if it doesn't exist already
+            beta_hist_dir = os.path.join(self.output_beta_dir, 'beta_histogram_plots')
+            if not os.path.isdir(beta_hist_dir):
+                os.makedirs(beta_hist_dir)
 
-        file_name = f'beta_hist_{wv_dict["wv_range"][0]}_{wv_dict["wv_range"][1]}.png'
-        # save the figure image
-        fig.savefig(f'{beta_hist_dir}/{file_name}');
+            file_name = f'beta_hist_{wv_dict["wv_range"][0]}_{wv_dict["wv_range"][1]}.png'
+            # save the figure image
+            fig.savefig(f'{beta_hist_dir}/{file_name}', bbox_inches='tight')
+            logging.info(f'Saving {file_name} to {beta_hist_dir}')
+
+        # don't show the plot if show_plot is False
+        if not show_plot:
+            plt.close()
+            logging.info('Not displaying plot!')
+
+    def mk_violin_plot(self, wv_channel, show_plot=True, save_plot=False):
+        # create violin plots for each wavelength channel
+
+        # dictionary containing all the bin sizes and beta values for each
+        # wavelength channel
+        beta_all_dict = self.wv_dict[f'WAVE_CHANNEL{wv_channel}']['beta_all_dict']
+
+        # slightly offset each violin plot within the same S/N channel
+        x_offset = [-3, -1, 1, 3]
+        colors = ['tab:blue', 'tab:orange', 'tab:green', 'tab:red']
+        # get all the bin modes for each S/N channel
+        bin_mode_all = []
+
+        plt.figure(figsize=(10, 6))
+        # legend patches
+        color_patches = []
+        color_patches.append(plt.Line2D([], [], color='k', ls="--", label='Sarzi+2018'))
+
+        # loop through each S/N channel and create a violin plot
+        # for each non-zero array using the beta distribution and bin size mode
+        for i, SN_key in enumerate(beta_all_dict.keys()):
+            SN_range = beta_all_dict[SN_key]['SN_range']
+            bin_modes = np.array(beta_all_dict[SN_key]['bin_modes'])
+            beta_all = beta_all_dict[SN_key]['beta_all']
+
+            # check to see if there are any beta distributions for the given
+            # S/N range
+            if np.all(bin_modes == -999):
+                logging.info(f'No beta distributions for S/N range between {SN_range[0]}-{SN_range[1]}')
+                continue
+            else:
+                for bin_mode, betas in zip(bin_modes, beta_all):
+                    # if array empty, skip
+                    if bin_mode == -999:
+                        continue
+                    else:
+                        bin_mode_all.append(bin_mode)
+                        violinplots = plt.violinplot(betas, positions=[bin_mode + x_offset[i]],
+                                                     showmedians=True, widths=7)
+
+                        # configure each individiual violin plot colors
+                        for partname in ('cbars', 'cmins', 'cmaxes', 'cmedians', 'bodies'):
+                            violin = violinplots[partname]
+                            if partname == 'bodies':
+                                for vp in violin:
+                                    vp.set_color(colors[i])
+                                    vp.set_facecolor(colors[i])
+                                    vp.set_edgecolor(colors[i])
+                                    vp.set_alpha(0.2)
+                                    vp.set_label('uhh')
+
+                            else:
+                                violin.set_edgecolor(colors[i])
+                                violin.set_linewidth(2)
+
+                        if SN_key == 'SN_CHANNEL3':
+                            SN_str = f'{SN_range[0]} < SNR'
+                        else:
+                            SN_str = f'{SN_range[0]} < SNR < {SN_range[1]}'
+
+                        # add to legend handle
+                        if bin_modes[bin_modes > -999][-1] == bin_mode:
+                            c_patch = mpatches.Patch(color=colors[i], label=SN_str)
+                            color_patches.append(c_patch)
+
+        # Sarzi+2018 fit parameters
+        a = self.wv_dict[f'WAVE_CHANNEL{wv_channel}']['beta_table']['param_fit_a'][0]
+        b = self.wv_dict[f'WAVE_CHANNEL{wv_channel}']['beta_table']['param_fit_b'][0]
+
+        # show Sarzi relation against violin plots
+        N_spx_range = np.arange(0, bin_mode_all[-1] + x_offset[-1] + 1)
+        plt.plot(N_spx_range, self.beta_func_quad(N_spx_range, a, b), c='k', ls='--', label='Sarzi+2018')
+
+        plt.tick_params(axis='both', which='both', direction='in', top=True, right=True, length=7)
+        plt.ylabel(r'$\beta$ (rN/N)')
+        plt.xlabel('Mode $N_{spx}$')
+        # {x:.2f}
+        plt.legend(handles=color_patches, fontsize='x-large', loc='upper center', frameon=False)
+
+        plt.figtext(x=0.15, y=0.50, s='Parameter Fits\n', fontsize=16)
+        text_str = f'a = {a:.2f}, b = {b:.2f}'
+        plt.figtext(x=0.15, y=0.49, s=text_str, fontsize=16)
+
+        wv_range = self.wv_dict[f'WAVE_CHANNEL{wv_channel}']["wv_range"]
+        plt.title(f'Wavelength Channel {wv_channel} ({wv_range[0]}-'
+                  f'{wv_range[1]} $\mathrm{{\AA}}$)', fontsize=22)
+
+        # save the figure if save_plot is True
+        if save_plot:
+            # create historgram directory if it doesn't exist already
+            beta_violin_dir = os.path.join(self.output_beta_dir, 'beta_violin_plots')
+            if not os.path.isdir(beta_violin_dir):
+                os.makedirs(beta_violin_dir)
+
+            file_name = f'beta_violin_{wv_range[0]}_{wv_range[1]}.png'
+            # save the figure image
+            plt.savefig(f'{beta_violin_dir}/{file_name}', bbox_inches='tight')
+            logging.info(f'Saving {file_name} to {beta_violin_dir}')
+
+        # don't show the plot if show_plot is False
+        if not show_plot:
+            plt.close()
+
+    def mk_hist_plots(self, show_plots=False, save_plots=True):
+
+        # create histogram plots for all the wavelength channels
+        for i in range(len(self.wv_dict.keys())):
+            self.mk_hist_plot(wv_channel=i, show_plot=show_plots, save_plot=save_plots)
+
+    def mk_violin_plots(self, show_plots=False, save_plots=True):
+
+        # create violin plots for all the wavelength channels
+        for i in range(len(self.wv_dict.keys())):
+            self.mk_violin_plot(wv_channel=i, show_plot=show_plots, save_plot=save_plots)

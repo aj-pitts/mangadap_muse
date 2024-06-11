@@ -9,7 +9,6 @@ from astropy.table import Table
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
-import posixpath
 import logging
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)

@@ -59,15 +59,15 @@ class DAP_MUSE:
                3. Same as above, with figures.
 
            Args:
-                config_file (str):
+                config_file (:obj:`str`):
                     Configuration file containing the initial galaxy inputs.
-                cube_file (str):
+                cube_file (:obj:`str`):
                     MUSE cube file path.
-                sres_file (str):
+                sres_file (:obj:`str`):
                     MUSE spectral resolution file path.
-               directory_path (str):
+               directory_path (:obj:`str`):
                     Directory path containing the MUSE cube file.
-               analysis_path (str):
+               analysis_path (:obj:`str`):
                    Top-level directory for the DAP output MUSE_cubes; default is
                    defined by :func:`mangadap.config.defaults.dap_analysis_path`.
 
@@ -93,17 +93,17 @@ class DAP_MUSE:
         both the command line and configuration file.
 
         Args:
-                config_fil (:obj:`str`):
-                    Configuration file containing the initial galaxy inputs.
-                cube_file (:obj:`str`):
-                    MUSE cube file path.
-                sres_file (:obj:`str`):
-                    MUSE spectral resolution file path.
-               directory_path (:obj:`str`):
-                    Directory path containing the MUSE cube file.
-               analysis_plan (:class:`mangadap.par.analysisplan.AnalysisPlanSet`):
-                   Top-level directory for the DAP output MUSE_cubes; default is
-                   defined by :func:`mangadap.config.defaults.dap_analysis_path`.
+            config_fil (:obj:`str`):
+                Configuration file containing the initial galaxy inputs.
+            cube_file (:obj:`str`):
+                MUSE cube file path.
+            sres_file (:obj:`str`):
+                MUSE spectral resolution file path.
+            directory_path (:obj:`str`):
+                Directory path containing the MUSE cube file.
+            analysis_plan (:class:`mangadap.par.analysisplan.AnalysisPlanSet`):
+                Top-level directory for the DAP output MUSE_cubes; default is
+                defined by :func:`mangadap.config.defaults.dap_analysis_path`.
         """
 
         # fit_one_cube_muse_test.py directory path

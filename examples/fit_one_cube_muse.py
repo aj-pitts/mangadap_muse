@@ -61,6 +61,10 @@ class DAP_MUSE:
            Args:
                 config_file (str):
                     Configuration file containing the initial galaxy inputs.
+                cube_file (str):
+                    MUSE cube file path.
+                sres_file (str):
+                    MUSE spectral resolution file path.
                directory_path (str):
                     Directory path containing the MUSE cube file.
                analysis_path (str):
@@ -91,6 +95,10 @@ class DAP_MUSE:
         Args:
                 config_fil (:obj:`str`):
                     Configuration file containing the initial galaxy inputs.
+                cube_file (:obj:`str`):
+                    MUSE cube file path.
+                sres_file (:obj:`str`):
+                    MUSE spectral resolution file path.
                directory_path (:obj:`str`):
                     Directory path containing the MUSE cube file.
                analysis_plan (:class:`mangadap.par.analysisplan.AnalysisPlanSet`):

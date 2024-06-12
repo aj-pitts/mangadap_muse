@@ -351,7 +351,7 @@ class CubeData:
 
             # write the beta table into a .dat file
             beta_tables_dir = os.path.join(defaults.dap_data_root(), 'beta_tables')
-            beta_tables_gal_dir = os.path.join(beta_tables_dir, self.galname)
+            beta_tables_gal_dir = os.path.join(beta_tables_dir, f'{self.galname}-{self.bin_key}')
             if not os.path.isdir(beta_tables_gal_dir):
                 os.makedirs(beta_tables_gal_dir)
 

@@ -277,12 +277,11 @@ def main(args):
 
     # check if beta table directory name is same as the input galaxy name
     if args.beta_corr:
-        beta_dir_ = args.galname
+        beta_dir_ = f"{args.galname}-{plan['bin_key'][0]}"
         beta_table_dir = os.path.join(defaults.dap_data_root(), 'beta_tables', beta_dir_)
         if not os.path.isdir(beta_table_dir):
-            raise ValueError(f'Galaxy name does not match any directory name within '
-                             f"'{os.path.join(defaults.dap_data_root(), 'beta_tables')}'. "
-                             f"Input '{beta_table_dir}' is not a directory.")
+            raise ValueError(f'{beta_table_dir} is not a directory within '
+                             f"{os.path.join(defaults.dap_data_root(), 'beta_tables')}")
     else:
         beta_dir_ = None
 

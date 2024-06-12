@@ -292,7 +292,7 @@ class CubeData:
                         beta_all_dict[all_key]['beta_medians'].append(-999)
 
                     else:
-                        beta_all_dict[all_key]['bin_modes'].append(stats.mode(bin_array)[0][0])
+                        beta_all_dict[all_key]['bin_modes'].append(stats.mode(bin_array)[0])
                         beta_all_dict[all_key]['beta_medians'].append(np.median(beta_array))
 
             self.wv_dict[wv_key]['N_spx_dict'] = N_spx_dict

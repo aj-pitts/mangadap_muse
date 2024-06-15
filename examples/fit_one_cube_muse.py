@@ -211,7 +211,7 @@ def main(args):
     # input configuration file path
     config_fil = glob.glob(f"{cube_dir}/*.ini")[0]
     if not os.path.isfile(cube_file):
-        raise ValueError(f'{os.path.basename(cube_file)} does not exist within {cube_dir}')
+        raise ValueError(f'{os.path.basename(config_fil)} does not exist within {cube_dir}')
 
     # get parameter values from config file
     cfg = DefaultConfig(config_fil, interpolate=True)

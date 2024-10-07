@@ -602,12 +602,20 @@ class SpectralStack:
         print('S/N: {}, N_spx: {}'.format(S_N, N_spx))
         print('------------------'.format(S_N, N_spx))
 
-        SNR_ranges = numpy.array([[0, 50], [50, 75], [75, 100]])
-        N_spx_ranges = numpy.array([3, 9, 25])
+        #SNR_ranges = numpy.array([[0, 50], [50, 75], [75, 100]])
+        SNR_ranges = numpy.array([[0, 15], [16, 30], [31, 60], [61, numpy.inf]])
+        #N_spx_ranges = numpy.array([3, 9, 25])
+        N_spx_ranges = numpy.array([9])
 
         for S_N_range in SNR_ranges:
             if (S_N > S_N_range[0]) & (S_N < S_N_range[1]):
-                col_name = 'S_N_' + str(S_N_range[0]) + '-' + str(S_N_range[1])
+                snstr0 = str(int(S_N_range[0]))
+                if not numpy.isfinite(S_N_range[1]):
+                    snstr1 = str(S_N_range[1])
+                else:
+                    snstr1 = str(int(S_N_range[1]))
+                    
+                col_name = 'S_N_' + snstr0 + '-' + snstr1
                 beta_col = beta_table[col_name]
 
                 print('Using beta table for S/N Range: {}-{}'.format(S_N_range[0], S_N_range[1]))

@@ -8,6 +8,9 @@ from astropy.io import fits
 from astropy.table import Table
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+from IPython import embed
+from tqdm import tqdm
+from matplotlib.gridspec import GridSpec
 
 import logging
 logger = logging.getLogger()
@@ -37,7 +40,8 @@ class CubeData:
         # mangadap_muse root directory path
         mangadap_muse_dir = os.path.dirname(os.path.dirname(defaults.dap_data_root()))
         # output directory path
-        output_root_dir = os.path.join(mangadap_muse_dir, 'outputs')
+        #output_root_dir = os.path.join(mangadap_muse_dir, 'outputs')
+        output_root_dir = "/data2/muse/dap_outputs/"
 
         self.galname = galname
         self.bin_key = bin_key
@@ -79,7 +83,8 @@ class CubeData:
         SN_dict = {}
         SN_channel_keys = ['SN_range', 'bin_size', 'beta_bin']
 
-        SN_lims = [[0, 50], [50, 75], [75, 100], [100, 1000]]
+        #SN_lims = [[0, 50], [50, 75], [75, 100], [100, 1000]]
+        SN_lims = [[0, 15], [16, 30], [31, 60], [61, np.inf]]
 
         for i in range(len(SN_lims)):
             channel = f'SN_CHANNEL{i}'
@@ -98,7 +103,8 @@ class CubeData:
         N_spx_dict = {}
         N_spx_channel_keys = ['N_spx_range', 'SN_dict']
 
-        N_spx_lims = [[0, 5.5], [5.5, 22], [22, 52], [52, 122]]
+        #N_spx_lims = [[0, 5.5], [5.5, 22], [22, 52], [52, 122]]
+        N_spx_lims = [[1, 2], [3, 4], [5, 6], [7, 8], [9, np.inf]]
 
         for i in range(len(N_spx_lims)):
             channel = f'N_spx_CHANNEL{i}'
@@ -116,10 +122,10 @@ class CubeData:
     def beta_all_dict(self):
         # create a dictionary containing the different N_spx bins
         beta_all_dict = {}
-        beta_all_channel_keys = ['SN_range', 'bin_size_all', 'beta_all', 'bin_modes', 'beta_medians']
+        beta_all_channel_keys = ['SN_range', 'bin_size_all', 'beta_all', 'bin_modes', 'beta_medians', 'beta_stds']
 
-        SN_lims = [[0, 50], [50, 75], [75, 100], [100, 1000]]
-
+        #SN_lims = [[0, 50], [50, 75], [75, 100], [100, 1000]]
+        SN_lims = [[0, 15], [16, 30], [31, 60], [61, np.inf]]
         for i in range(len(SN_lims)):
             channel = f'SN_CHANNEL{i}'
             beta_all_dict[channel] = {}
@@ -218,8 +224,8 @@ class CubeData:
             # and propagated noise (beta = rN/N)
             beta = (rN_1sigma / np.median(error_mask))
 
-            # don't store correlation ratio if its non-finite and less than 0
-            if (np.isfinite(beta) == False) or (beta < 0):
+            # don't store correlation ratio if its non-finite and less than 0 or greater than 1000
+            if (np.isfinite(beta) == False) or (beta < 0) or (beta >= 1000):
                 continue
             else:
                 bin_masks.append(flux_mask.mask)
@@ -233,7 +239,7 @@ class CubeData:
         # dictionary for each wavelength channel
         self.wv_dict = self.wv_dict()
 
-        for wv_key in self.wv_dict.keys():
+        for wv_key in tqdm(self.wv_dict.keys(), desc="Computing and sorting betas"):
             # filter data
             # wave_filt, flux_filt, model_filt, err_filt = self.filter_data(self.wv_dict[key]['wv_range'])
             wave_filt = self.filter_data(self.wave, self.wave, self.wv_dict[wv_key]['wv_range'])
@@ -290,10 +296,12 @@ class CubeData:
                     if len(bin_array) == 0:
                         beta_all_dict[all_key]['bin_modes'].append(-999)
                         beta_all_dict[all_key]['beta_medians'].append(-999)
+                        beta_all_dict[all_key]['beta_stds'].append(-999)
 
                     else:
                         beta_all_dict[all_key]['bin_modes'].append(stats.mode(bin_array)[0])
                         beta_all_dict[all_key]['beta_medians'].append(np.median(beta_array))
+                        beta_all_dict[all_key]['beta_stds'].append(np.std(beta_array))
 
             self.wv_dict[wv_key]['N_spx_dict'] = N_spx_dict
             self.wv_dict[wv_key]['beta_all_dict'] = beta_all_dict
@@ -302,12 +310,15 @@ class CubeData:
     def beta_func_quad(self, N_spx, a, b):
         return 1 + a * (np.log10(N_spx)) ** b
 
-    def create_beta_tables(self):
+    def create_beta_tables(self, verbose=False, std=False):
 
         # dictionary for each wavelength channel
         wv_dict = self.wv_dict
 
         for wv_key in wv_dict.keys():
+            if verbose:
+                print(f"########## {wv_key}")
+
             # dictionary for each wavelength channel
             wv_range = wv_dict[wv_key]['wv_range']
             beta_all_dict = wv_dict[wv_key]['beta_all_dict']
@@ -318,34 +329,75 @@ class CubeData:
             # list to store for values for fitting Sarzi+2018 relation
             bin_fit = []
             beta_fit = []
+            beta_err = []
 
             # loop through each S/N channel within Beta_all dicitonary
             for all_key in beta_all_dict.keys():
+                if verbose:
+                    print(f"###### {all_key}")
                 bin_modes = beta_all_dict[all_key]['bin_modes']
                 beta_medians = beta_all_dict[all_key]['beta_medians']
+                beta_stds = beta_all_dict[all_key]['beta_stds']
 
-                # don't keep last beta median value because the correlation
-                # correction does not do well for N_spx > 100
-                beta_table_data.append(beta_medians[:3])
+                ## don't keep last beta median value because the correlation
+                ## correction does not do well for N_spx > 100
+                #beta_table_data.append(beta_medians[:3])
+                if verbose:
+                    print(f"### Appending to beta_table_data: {beta_medians}")
+                beta_table_data.append(beta_medians)
 
-                for bin_mode, beta_median in zip(bin_modes, beta_medians):
-
-                    if bin_mode == -999:
+                for bin_mode, beta_median, beta_std in zip(bin_modes, beta_medians, beta_stds):
+                    if beta_std == 0:
+                        beta_std = 1
+                    if bin_mode == -999 or bin_mode == 1:
                         continue
                     else:
+                        #if verbose:
+                         #   print(f"########## Appending for fit N_spax = {bin_mode} | Beta = {beta_median} +/- {beta_std}")
                         bin_fit.append(bin_mode)
                         beta_fit.append(beta_median)
+                        beta_err.append(beta_std)
+
+            # Force beta(N=1) = 1
+            beta_fit.append(1)
+            bin_fit.append(1)
+            beta_err.append(1e-6)
+
+            boundaries = [(-np.inf, 0), (np.inf, np.inf)]
 
             beta_func_quad = self.beta_func_quad
             # get parameters
             # fit data points usings Sarzi+2018 relationshiop
-            popt_sarzi, pcov_sarzi = curve_fit(beta_func_quad, np.array(bin_fit),np.array(beta_fit))
+            if verbose:
+                print(f"## Fitting to {bin_fit} vs. {beta_fit}")
+            
+            if std:
+                popt_sarzi, pcov_sarzi = curve_fit(beta_func_quad, np.array(bin_fit),np.array(beta_fit), sigma=np.array(beta_err), bounds=boundaries)
+            else:
+                popt_sarzi, pcov_sarzi = curve_fit(beta_func_quad, np.array(bin_fit), np.array(beta_fit), bounds=boundaries)
 
+            if np.sum(np.isfinite(pcov_sarzi)) != pcov_sarzi.size:
+                print(f"Betas: {beta_fit}")
+                print(f"Errs: {beta_err}")
+                print(f"Bins: {bin_fit}")
+                print("a = {} +/ {}".format(popt_sarzi[0], np.sqrt(np.diagonal(pcov_sarzi)[0])))
+                print("b = {} +/ {}".format(popt_sarzi[1], np.sqrt(np.diagonal(pcov_sarzi)[1])))
+                raise ValueError(f"Sarzi Parameters could not be fit...")
             # create an Astropy data table containting each median beta histogram distribution
             # for a given S/N and N_spx size
-            beta_table = Table([beta_table_data[0], beta_table_data[1], beta_table_data[2],
-                                [popt_sarzi[0], -999, -999], [popt_sarzi[1], -999, -999]],
-                               names=('S_N_0-50', 'S_N_50-75', 'S_N_75-100', 'param_fit_a', 'param_fit_b'))
+            #names = ('S_N_0-50', 'S_N_50-75', 'S_N_75-100', 'param_fit_a', 'param_fit_b')
+            names = ('S_N_0-15', 'S_N_16-30', 'S_N_31-60', 'S_N_60-inf', 'param_fit_a', 'param_fit_b')
+
+            nrows = len(beta_table_data[0]) - 1
+            param_fit_a = [popt_sarzi[0]] + [-999] * nrows
+            param_fit_b = [popt_sarzi[1]] + [-999] * nrows
+
+            if verbose:
+                print(f"# Storing {[beta_table_data[0], beta_table_data[1], beta_table_data[2], beta_table_data[3], param_fit_a, param_fit_b]} in beta table.")
+
+            beta_table = Table([beta_table_data[0], beta_table_data[1], beta_table_data[2], beta_table_data[3],
+                                param_fit_a, param_fit_b],
+                               names=names)
 
             self.wv_dict[wv_key]['beta_table'] = beta_table
 
@@ -485,7 +537,23 @@ class CubeData:
         beta_bins = np.arange(0, 15, 0.2)
         median_colors = ['tab:blue', 'tab:orange', 'tab:green', 'tab:red']
 
-        fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(14, 10))
+        #fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(14, 10))
+        fig = plt.figure(figsize = (5*3, 5*2) )
+
+        # Create a GridSpec layout with 3 rows and 2 columns
+        gs = GridSpec(3, 2, figure=fig)
+
+        # Create subplots in the GridSpec layout
+        ax1 = fig.add_subplot(gs[0, 0])  # First row, first column
+        ax2 = fig.add_subplot(gs[0, 1])  # First row, second column
+        ax3 = fig.add_subplot(gs[1, 0])  # Second row, first column
+        ax4 = fig.add_subplot(gs[1, 1])  # Second row, second column
+
+        # Add the 5th subplot spanning the third row
+        ax5 = fig.add_subplot(gs[2, 0])  # Third row, spans both columns
+        ax6 = fig.add_subplot(gs[2, 1])  # Third row, second column (kept empty)
+        ax6.axis('off')  # Turn off the axis if you want to leave it empty
+
         fig.tight_layout(pad=4.0)
 
         N_spx_dict = wv_dict['N_spx_dict']
@@ -499,9 +567,9 @@ class CubeData:
                 beta_SN_bin = SN_dict[SN_key]['beta_bin']
 
                 if SN_key == 'SN_CHANNEL3':
-                    label = f'{SN_range[0]} < SN'
+                    label = f'{SN_range[0]} <= SN'
                 else:
-                    label = f'{SN_range[0]} < SN < {SN_range[1]}'
+                    label = f'{SN_range[0]} <= SN <= {SN_range[1]}'
 
                 ax.hist(beta_SN_bin, bins=beta_bins, label=label,
                         histtype='step', stacked=False, alpha=0.9, fill=False)
@@ -514,14 +582,14 @@ class CubeData:
                     ax.axvline(np.median(beta_SN_bin), ls='--', c=median_colors[i], lw=1)
 
             if N_spx_key == 'N_spx_CHANNEL0':
-                ax.set_title(f'$N_{{ \mathrm{{spax}} }}$ < {N_spx_range[1]}', fontsize=22)
+                ax.set_title(f'$N_{{ \mathrm{{spax}} }} \leq$ {N_spx_range[1]}', fontsize=22)
                 ax.legend(fontsize=16)
 
-            elif N_spx_key == 'N_spx_CHANNEL3':
-                ax.set_title(f'$N_{{ \mathrm{{spax}} }}$ > {N_spx_range[1]}', fontsize=22)
+            elif N_spx_key == 'N_spx_CHANNEL4':
+                ax.set_title(f'$N_{{ \mathrm{{spax}} }} \geq$ {N_spx_range[1]}', fontsize=22)
 
             else:
-                ax.set_title(f'{N_spx_range[0]} < $N_{{\mathrm{{spax}}}}$ < {N_spx_range[1]}', fontsize=22)
+                ax.set_title(f'{N_spx_range[0]} $\leq N_{{\mathrm{{spax}}}} \leq$ {N_spx_range[1]}', fontsize=22)
 
             ax.set_xlim(0, 10)
             ax.set_xlabel(r'$\beta$ (rN/N)', fontsize=22)
@@ -555,7 +623,9 @@ class CubeData:
         beta_all_dict = self.wv_dict[f'WAVE_CHANNEL{wv_channel}']['beta_all_dict']
 
         # slightly offset each violin plot within the same S/N channel
-        x_offset = [-3, -1, 1, 3]
+        #x_offset = [-3, -1, 1, 3]
+        x_offset = [0, 0, 0, 0]
+
         colors = ['tab:blue', 'tab:orange', 'tab:green', 'tab:red']
         # get all the bin modes for each S/N channel
         bin_mode_all = []
@@ -585,7 +655,8 @@ class CubeData:
                     else:
                         bin_mode_all.append(bin_mode)
                         violinplots = plt.violinplot(betas, positions=[bin_mode + x_offset[i]],
-                                                     showmedians=True, widths=7)
+                                                     showmedians=True, widths=3)
+                        plt.scatter(bin_mode, np.median(betas), marker='o', s=7, c=colors[i], edgecolors='k')
 
                         # configure each individiual violin plot colors
                         for partname in ('cbars', 'cmins', 'cmaxes', 'cmedians', 'bodies'):
@@ -603,9 +674,9 @@ class CubeData:
                                 violin.set_linewidth(2)
 
                         if SN_key == 'SN_CHANNEL3':
-                            SN_str = f'{SN_range[0]} < SN'
+                            SN_str = f'{SN_range[0]} <= SN'
                         else:
-                            SN_str = f'{SN_range[0]} < SN < {SN_range[1]}'
+                            SN_str = f'{SN_range[0]} <= SN <= {SN_range[1]}'
 
                         # add to legend handle
                         if bin_modes[bin_modes > -999][-1] == bin_mode:
@@ -617,12 +688,16 @@ class CubeData:
         b = self.wv_dict[f'WAVE_CHANNEL{wv_channel}']['beta_table']['param_fit_b'][0]
 
         # show Sarzi relation against violin plots
-        N_spx_range = np.arange(0, bin_mode_all[-1] + x_offset[-1] + 1)
+        #N_spx_range = np.arange(0, bin_mode_all[-1] + x_offset[-1] + 1)
+        N_spx_range = np.linspace(0,12,1000)
         plt.plot(N_spx_range, self.beta_func_quad(N_spx_range, a, b), c='k', ls='--', label='Sarzi+2018')
 
         plt.tick_params(axis='both', which='both', direction='in', top=True, right=True, length=7)
         plt.ylabel(r'$\beta$ (rN/N)')
         plt.xlabel('Mode $N_{spx}$')
+        ymin, ymax = plt.ylim()
+        plt.ylim(0, min(ymax, 10))
+        plt.xlim(0,12)
         # {x:.2f}
         plt.legend(handles=color_patches, fontsize='xx-large', loc='upper center', frameon=False)
 

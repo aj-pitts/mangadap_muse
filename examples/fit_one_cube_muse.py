@@ -110,7 +110,8 @@ class DAP_MUSE:
         file_dir = os.path.dirname(os.path.abspath(__file__))
 
         # main output directory
-        output_root_dir = os.path.join(os.path.dirname(file_dir), 'outputs')
+        #output_root_dir = os.path.join(os.path.dirname(file_dir), 'outputs')
+        output_root_dir = "/data2/muse/dap_outputs/"
         # make the directory if there isn't one already
         if not os.path.isdir(output_root_dir):
             os.makedirs(output_root_dir)
@@ -183,7 +184,8 @@ def main(args):
     file_dir = os.path.dirname(os.path.abspath(__file__))
 
     # main cube directory path
-    main_cube_dir = os.path.join(os.path.dirname(file_dir), 'MUSE_cubes')
+    #main_cube_dir = os.path.join(os.path.dirname(file_dir), 'MUSE_cubes')
+    main_cube_dir = "/data2/muse/muse_cubes/"
 
     # spectral resolution file path
     sres_file = os.path.join(main_cube_dir, 'LSF-Config_MUSE_WFM')
@@ -193,7 +195,7 @@ def main(args):
     # cube directory path
     cube_dir = os.path.join(main_cube_dir, args.galname)
     if not os.path.isdir(cube_dir):
-        raise ValueError(f'{cube_dir} is not a directory within /MUSE_cubes')
+        raise ValueError(f'{cube_dir} is not a directory within /data2/')
 
     # check if there is only one MUSE cube file in the cube directory
     if len(glob.glob(f"{cube_dir}/*.fits")) > 1:

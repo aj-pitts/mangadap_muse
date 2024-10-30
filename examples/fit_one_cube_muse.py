@@ -264,7 +264,7 @@ def main(args):
                                         # - 'EFITMPL11-ISMMASK-HCNOISM' places an ISM mask on the ELPMPL11
                                         #    library and uses the MaStar Hierarchically Clustered Library v2
                                         #    for the continuum templates.
-                                        elfit_key='EFITMPL11-ISMMASK-HCNOISM',
+                                        elfit_key='EFITMPL11-ISMMASK-MASTARSSPNOISM',
                                         # Overwrite any existing emission-line modeling reference files
                                         elfit_clobber=True,
                                         # Spectral-index measurement method keyword

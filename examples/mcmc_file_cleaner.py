@@ -50,7 +50,9 @@ def remove_older_files(directory, galstring, dry=False, time_window=48*3600):
             else:
                 # If it's outside the time window, delete it
                 if dry:
-                    print(f"Would delete: {file_to_check}")
+                    mod_time = os.path.getmtime(file_to_check)
+                    formatted_time = time.ctime(mod_time)  # Format the modification time
+                    print(f"Would delete: {file_to_check} (Last modified: {formatted_time})")
                 else:
                     os.remove(file_to_check)  # Actual delete
 
@@ -58,7 +60,9 @@ def remove_older_files(directory, galstring, dry=False, time_window=48*3600):
     if dry:
         print("\nFiles that would be kept:")
         for file_to_keep in files_to_keep:
-            print(file_to_keep)
+            mod_time = os.path.getmtime(file_to_keep)
+            formatted_time = time.ctime(mod_time)  # Format the modification time
+            print(f"{file_to_keep} (Last modified: {formatted_time})")
 
 
 def main():

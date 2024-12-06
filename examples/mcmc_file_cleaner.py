@@ -4,11 +4,11 @@ from tqdm import tqdm
 import time
 import argparse
 
-def remove_older_files(directory, dry = False):
+def remove_older_files(directory, galstring, dry = False):
     # Regex pattern to match the filenames
     print(directory)
-    
-    file_pattern = re.compile(fr"{directory}-binid-(\d+)-(\d+)-samples-run-(\d+)\.fits")
+
+    file_pattern = re.compile(fr"{galstring}-binid-(\d+)-(\d+)-samples-run-(\d+)\.fits")
 
     # Store files grouped by "run"
     files_by_run = {}
@@ -16,7 +16,7 @@ def remove_older_files(directory, dry = False):
     # Iterate through files in the directory
     for filename in os.listdir(directory):
         print(filename)
-        match = file_pattern.match(filename)
+        match = file_pattern.match(filename)()
         if match:
             print("Match True")
             # Extract run number from filename
@@ -77,10 +77,10 @@ def main():
         subdir_list = os.listdir(datadir)
         for dir in tqdm(subdir_list, desc="Cleaning MCMC outputs."):
             datapath = os.path.join(dir, "BETA-CORR")
-            remove_older_files(datapath, dry=dry)
+            remove_older_files(datapath, os.path.basename(dir), dry=dry)
     else:
         dir = os.path.join(datadir, input_dir, "BETA-CORR")
-        remove_older_files(dir, dry=dry)
+        remove_older_files(dir, input_dir, dry=dry)
 
 if __name__ == "__main__":
     main()

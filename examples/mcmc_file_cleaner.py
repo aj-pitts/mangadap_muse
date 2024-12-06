@@ -4,61 +4,63 @@ from tqdm import tqdm
 import time
 import argparse
 
-def remove_older_files(directory, galstring, dry = False):
+def remove_older_files(directory, galstring, dry=False):
     # Regex pattern to match the filenames
     print(directory)
 
     file_pattern = re.compile(fr"{galstring}-binid-(\d+)-(\d+)-samples-run-(\d+)\.fits")
 
-    # Store files grouped by "run"
-    files_by_run = {}
+    files = os.listdir(directory)
 
-    # Iterate through files in the directory
-    for filename in os.listdir(directory):
-        print(filename)
-        match = file_pattern.match(filename)
+    # Dictionary to store the files grouped by run number
+    run_files = {}
+
+    # Group files by run number based on the filename pattern
+    for file in files:
+        match = file_pattern.match(file)
         if match:
-            print("Match True")
-            # Extract run number from filename
-            run = int(match.group(3))
+            run_number = match.group(3)  # Extract the run number
+            if run_number not in run_files:
+                run_files[run_number] = []
+            file_path = os.path.join(directory, file)
+            run_files[run_number].append(file_path)
 
-            # Get the full file path
-            file_path = os.path.join(directory, filename)
+    # List to store the files that would be kept (most recent file for each run group)
+    files_to_keep = []
 
-            # Get the file's creation time (or last modification time)
-            creation_time = os.path.getctime(file_path)
+    # Track the most recent run (based on the run numbers)
+    most_recent_run = max(run_files.keys(), key=lambda run: max(os.path.getctime(f) for f in run_files[run]))
 
-            # Group files by "run" and store (filename, creation time)
-            if run not in files_by_run:
-                files_by_run[run] = []
-            files_by_run[run].append((filename, creation_time))
+    # Go through each run group and remove duplicates
+    for run_number, files_in_run in run_files.items():
+        if len(files_in_run) > 1:
+            # Sort files by modification time (oldest first)
+            files_in_run.sort(key=lambda f: os.path.getmtime(f))
 
+            # If it's not the most recent run, delete all but the most recently modified file
+            if run_number != most_recent_run:
+                # Print the files that would be deleted (dry run)
+                for file_to_delete in files_in_run[:-1]:  # Exclude the most recently modified
+                    if dry:
+                        print(f"Would delete: {file_to_delete}")
+                    else:
+                        os.remove(file_to_delete)  # Actual delete
+            else:
+                # Add the most recent file of the most recent run to the list of files to keep
+                most_recent_file = files_in_run[-1]
+                files_to_keep.append(most_recent_file)
+
+        else:  # If there's only one file in the run group, keep it
+            files_to_keep.append(files_in_run[0])
+
+    # If dry_run is enabled, also print the list of files to be kept
     if dry:
-        files_kept = []
-    # Process each group
-    for run, files in files_by_run.items():
-        if len(files) == 1:  # Skip if only one file
-            print(f"Only one file found for run {run}: {files[0][0]} (no deletion)")
-        else:
-            # Sort files by creation time (oldest first)
-            files.sort(key=lambda x: x[1])
+        print("\nFiles that would be kept:")
+        for file_to_keep in files_to_keep:
+            print(file_to_keep)
 
-            # Keep the most recent file (last in the sorted list)
-            most_recent_file = files[-1][0]
-            if dry:
-                files_kept.append(most_recent_file)
-            # Delete all files except the most recent
-            for file, _ in files[:-1]:
-                if dry: 
-                    print(f"Would remove {file_path_to_delete}")
-                else:
-                    file_path_to_delete = os.path.join(directory, file)
-                    os.remove(file_path_to_delete)
-                    print(f"Deleted: {file}")
-    if dry:
-        print(f"Files Kept: {files_kept}")
 
-# Specify the directory containing the files
+    
 
 def main():
     parser = argparse.ArgumentParser(description="Remove duplicate MCMC files based on creation date.")

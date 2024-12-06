@@ -13,8 +13,10 @@ def remove_older_files(directory, dry = False):
 
     # Iterate through files in the directory
     for filename in os.listdir(directory):
+        print(filename)
         match = file_pattern.match(filename)
         if match:
+            print("Match True")
             # Extract run number from filename
             run = int(match.group(3))
 

@@ -6,7 +6,6 @@ import argparse
 
 def remove_older_files(directory, galstring, dry=False, time_window=48*3600):
     # Regex pattern to match the filenames
-    print(directory)
 
     file_pattern = re.compile(fr"{galstring}-binid-(\d+)-(\d+)-samples-run-(\d+)\.fits")
 
@@ -81,7 +80,7 @@ def main():
     if input_dir is None:
         subdir_list = os.listdir(datadir)
         for dir in tqdm(subdir_list, desc="Cleaning MCMC outputs."):
-            datapath = os.path.join(dir, "BETA-CORR")
+            datapath = os.path.join(datadir, dir, "BETA-CORR")
             remove_older_files(datapath, os.path.basename(dir), dry=dry)
     else:
         dir = os.path.join(datadir, input_dir, "BETA-CORR")

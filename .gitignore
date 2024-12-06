@@ -18,6 +18,7 @@ docs/sphinx_warnings.out
 */version.py
 */cython_version.py
 
+mangadap/data/beta_tables/
 
 dev/*.fits
 dev/repr

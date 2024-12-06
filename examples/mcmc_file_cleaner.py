@@ -59,6 +59,8 @@ def remove_older_files(directory, galstring, dry=False, time_window=48*3600):
     # If dry_run is enabled, also print the list of files to be kept
     if dry:
         print("\nFiles that would be kept:")
+        # Sort files to keep by run number (extracted from filenames)
+        files_to_keep.sort(key=lambda f: re.search(r"run-(\d+)", f).group(1))  # Sort by run number
         for file_to_keep in files_to_keep:
             mod_time = os.path.getmtime(file_to_keep)
             formatted_time = time.ctime(mod_time)  # Format the modification time

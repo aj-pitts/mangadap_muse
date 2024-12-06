@@ -6,6 +6,8 @@ import argparse
 
 def remove_older_files(directory, dry = False):
     # Regex pattern to match the filenames
+    print(directory)
+    
     file_pattern = re.compile(fr"{directory}-binid-(\d+)-(\d+)-samples-run-(\d+)\.fits")
 
     # Store files grouped by "run"

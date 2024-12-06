@@ -72,9 +72,10 @@ def main():
     if input_dir is None:
         subdir_list = os.listdir(datadir)
         for dir in tqdm(subdir_list, desc="Cleaning MCMC outputs."):
-            remove_older_files(dir, dry=dry)
+            datapath = os.path.join(dir, "BETA-CORR")
+            remove_older_files(datapath, dry=dry)
     else:
-        dir = os.path.join(datadir, input_dir)
+        dir = os.path.join(datadir, input_dir, "BETA-CORR")
         remove_older_files(dir, dry=dry)
 
 if __name__ == "__main__":

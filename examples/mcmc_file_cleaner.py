@@ -3,6 +3,7 @@ import re
 from tqdm import tqdm
 import time
 import argparse
+import glob
 
 def remove_older_files(directory, galstring, dry=False):
     # Regex pattern to match the filenames
@@ -25,8 +26,32 @@ def remove_older_files(directory, galstring, dry=False):
             file_path = os.path.join(directory, file)
             run_files[run_number].append(file_path)
 
-    # List to store the files that would be kept (most recent file for each run group)
+    # Step 1: Identify all files with "run-0" in the filename
+    run_0_files = glob.glob(os.path.join(directory, '*run-0*.fits'))
+
+    if not run_0_files:
+        print("No files with 'run-0' found. Cannot determine the most recent run.")
+        return
+
+    # Step 2: Get the most recently modified file with "run-0" in its name
+    most_recent_file = max(run_0_files, key=os.path.getmtime)
+    most_recent_time = os.path.getmtime(most_recent_file)
+
+    # Step 3: Set a time window (e.g., +/- 48 hours) for identifying recent files
+    time_threshold = 48 * 3600  # 48 hours in seconds
+    lower_bound = most_recent_time - time_threshold
+    upper_bound = most_recent_time + time_threshold
+
+    print(f"Most recent run identified by {most_recent_file}. Time window: "
+          f"{time.ctime(lower_bound)} to {time.ctime(upper_bound)}")
+
+    # Step 4: Iterate through all the files in the directory and delete outdated ones
     files_to_keep = []
+
+    for file in run_0_files:
+        file_mod_time = os.path.getmtime(file)
+        if lower_bound <= file_mod_time <= upper_bound:
+            files_to_keep.append(file)
 
     # Track the most recent run (based on the run numbers)
     most_recent_run = max(run_files.keys(), key=lambda run: max(os.path.getctime(f) for f in run_files[run]))
@@ -60,8 +85,6 @@ def remove_older_files(directory, galstring, dry=False):
             print(file_to_keep)
 
 
-    
-
 def main():
     parser = argparse.ArgumentParser(description="Remove duplicate MCMC files based on creation date.")
     parser.add_argument("gal_directory", type=str, nargs="?", default=None, help="Galaxy directory defined as <GALNAME>-<BIN_METHOD> containing the files to check (optional)")
@@ -78,7 +101,7 @@ def main():
     if input_dir is None:
         subdir_list = os.listdir(datadir)
         for dir in tqdm(subdir_list, desc="Cleaning MCMC outputs."):
-            datapath = os.path.join(dir, "BETA-CORR")
+            datapath = os.path.join(datadir, dir, "BETA-CORR")
             remove_older_files(datapath, os.path.basename(dir), dry=dry)
     else:
         dir = os.path.join(datadir, input_dir, "BETA-CORR")

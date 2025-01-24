@@ -18,12 +18,27 @@ MaNGA DAP, such as paths and file names.
 import os
 import glob
 from pkg_resources import resource_filename
-
+import json
 import numpy
 
 from ..util.exception_tools import check_environment_variable
 from mangadap import __version__
 
+
+def galaxy_data_root():
+    """Return the root directory of the galaxy datacubes."""
+    config_root = dap_config_root()
+    config_filepath = os.path.join(config_root, 'config.json')
+    with open(config_filepath) as config_file:
+        config = json.load(config_file)
+    
+    data_path = config['data_path']
+    if not os.path.exists(data_path):
+        raise ValueError(f"""Path-to-data does not exist. Please setup the data_path configuration in {config_filepath}
+                         data_path should specify the absolute path to the location of the subdirectories containing
+                         the muse_cubes, dap_outputs, and mcmc_outputs.
+                         """)
+    return data_path
 
 def dap_data_root():
     """Return the root directory with the DAP data."""

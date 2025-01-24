@@ -185,7 +185,8 @@ def main(args):
 
     # main cube directory path
     #main_cube_dir = os.path.join(os.path.dirname(file_dir), 'MUSE_cubes')
-    main_cube_dir = "/data2/muse/muse_cubes/"
+    data_root = defaults.galaxy_data_root()
+    main_cube_dir = os.path.join(data_root, 'muse_cubes')
 
     # spectral resolution file path
     sres_file = os.path.join(main_cube_dir, 'LSF-Config_MUSE_WFM')

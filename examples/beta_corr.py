@@ -40,8 +40,8 @@ class CubeData:
         # mangadap_muse root directory path
         mangadap_muse_dir = os.path.dirname(os.path.dirname(defaults.dap_data_root()))
         # output directory path
-        #output_root_dir = os.path.join(mangadap_muse_dir, 'outputs')
-        output_root_dir = "/data2/muse/dap_outputs/"
+        data_root_dir = defaults.galaxy_data_root()
+        output_root_dir = os.path.join(data_root_dir, 'dap_outputs')
 
         self.galname = galname
         self.bin_key = bin_key
@@ -59,7 +59,10 @@ class CubeData:
         # non-corrected MUSE cube directory
         output_gal_sub_dir = os.path.join(output_gal_dir, 'NO-CORR')
         # key methdos from analysis plan
-        analysisplan_methods = 'MILESHC-MASTARHC2-NOISM'
+
+        #analysisplan_methods = 'MILESHC-MASTARHC2-NOISM'
+        analysisplan_methods = 'MILESHC-MASTARSSP-NOISM'
+
         # cube directory
         cube_dir = os.path.join(output_gal_sub_dir, f"{bin_key}-{analysisplan_methods}", str(plate), str(ifu))
         # paths to the LOGCUBE and MAPS files

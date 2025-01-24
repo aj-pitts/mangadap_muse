@@ -20,7 +20,7 @@ import glob
 from pkg_resources import resource_filename
 import json
 import numpy
-
+import warnings
 from ..util.exception_tools import check_environment_variable
 from mangadap import __version__
 

@@ -80,6 +80,49 @@ class CubeData:
         self.model = cube['MODEL'].data
         self.error = np.sqrt(1 / cube['IVAR'].data)
 
+        self.define_bin_and_sn_ranges()
+
+    def define_bin_and_sn_ranges(self, num_Nspax_ranges=5, num_S2N_ranges=4, SN_start=15):
+        ## N spax
+        bin_sizes = np.unique([np.sum(ID == self.binid_map) for ID in np.unique(self.binid_map)[1:]])
+        min_bin_size, max_bin_size = bin_sizes.min(), bin_sizes.max()
+        N_spax_edges = np.linspace(min_bin_size, max_bin_size, num_Nspax_ranges + 1)
+        N_spax_edges = np.round(N_spax_edges).astype(int)
+
+        self.N_spx_lims = [[N_spax_edges[i], N_spax_edges[i+1]] for i in range(len(N_spax_edges) - 1)]
+
+
+        ## S / N
+        sn_cube = self.flux / self.error
+        clean = np.isfinite(sn_cube) & (sn_cube >= 0)
+        
+        signal_to_noises = sn_cube[clean]
+
+        min_sn, max_sn = 0, np.max(signal_to_noises)
+        
+        try:
+            coefficients = [1] * (num_S2N_ranges - 1) + [1 - (max_sn / SN_start)]
+            roots = np.roots(coefficients)
+            real_roots = [r.real for r in roots if r.imag ==0]
+            SN_scale_factor = round(real_roots[0])
+        except:
+            SN_scale_factor = 2
+
+        sn_bin_edges = [min_sn]
+        current_edge = SN_start
+        counter = 1
+        while current_edge < max_sn and counter < num_S2N_ranges:
+            sn_bin_edges.append(int(current_edge))
+            current_edge *= SN_scale_factor
+            counter += 1
+
+        sn_bin_edges.append(int(max_sn))
+        sn_bin_edges = np.linspace(min_sn, max_sn, num_S2N_ranges + 1)
+
+        self.SN_lims = [[sn_bin_edges[i], sn_bin_edges[i + 1]] for i in range(len(sn_bin_edges) - 1)]
+
+
+
     def SN_dict(self):
         # create a dictionary containing that stores the number of spaxels in each bin ID
         # and beta values for each S/N bin
@@ -87,7 +130,8 @@ class CubeData:
         SN_channel_keys = ['SN_range', 'bin_size', 'beta_bin']
 
         #SN_lims = [[0, 50], [50, 75], [75, 100], [100, 1000]]
-        SN_lims = [[0, 15], [16, 30], [31, 60], [61, np.inf]]
+        #SN_lims = [[0, 15], [16, 30], [31, 60], [61, np.inf]]
+        SN_lims = self.SN_lims
 
         for i in range(len(SN_lims)):
             channel = f'SN_CHANNEL{i}'
@@ -107,7 +151,8 @@ class CubeData:
         N_spx_channel_keys = ['N_spx_range', 'SN_dict']
 
         #N_spx_lims = [[0, 5.5], [5.5, 22], [22, 52], [52, 122]]
-        N_spx_lims = [[1, 2], [3, 4], [5, 6], [7, 8], [9, np.inf]]
+        #N_spx_lims = [[1, 2], [3, 4], [5, 6], [7, 8], [9, np.inf]]
+        N_spx_lims = self.N_spx_lims
 
         for i in range(len(N_spx_lims)):
             channel = f'N_spx_CHANNEL{i}'

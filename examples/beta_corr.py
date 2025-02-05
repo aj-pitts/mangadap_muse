@@ -423,9 +423,20 @@ class CubeData:
                 print(f"## Fitting to {bin_fit} vs. {beta_fit}")
             
             if std:
-                popt_sarzi, pcov_sarzi = curve_fit(beta_func_quad, np.array(bin_fit),np.array(beta_fit), sigma=np.array(beta_err), bounds=boundaries)
+                try:
+                    popt_sarzi, pcov_sarzi = curve_fit(beta_func_quad, np.array(bin_fit),np.array(beta_fit), sigma=np.array(beta_err), bounds=boundaries)
+                except Exception as error:
+                    print(error)
+                    popt_sarzi = (1.06, 1)
+                    print(f'Assuming simple Garcia: a = {popt_sarzi[0]} b = {popt_sarzi[1]}')
+
             else:
-                popt_sarzi, pcov_sarzi = curve_fit(beta_func_quad, np.array(bin_fit), np.array(beta_fit), bounds=boundaries)
+                try:
+                    popt_sarzi, pcov_sarzi = curve_fit(beta_func_quad, np.array(bin_fit), np.array(beta_fit), bounds=boundaries)
+                except Exception as error:
+                    print(error)
+                    popt_sarzi = (1.06, 1)
+                    print(f'Assuming simple Garcia: a = {popt_sarzi[0]} b = {popt_sarzi[1]}')
 
             if np.sum(np.isfinite(pcov_sarzi)) != pcov_sarzi.size:
                 print(f"Betas: {beta_fit}")
@@ -437,7 +448,10 @@ class CubeData:
             # create an Astropy data table containting each median beta histogram distribution
             # for a given S/N and N_spx size
             #names = ('S_N_0-50', 'S_N_50-75', 'S_N_75-100', 'param_fit_a', 'param_fit_b')
-            names = ('S_N_0-15', 'S_N_16-30', 'S_N_31-60', 'S_N_60-inf', 'param_fit_a', 'param_fit_b')
+            SN = self.SN_lims
+            names = (f'S_N_{str(SN[0,0])}-{str(SN[0,1])}', f'S_N_{str(SN[1,0])}-{str(SN[1,1])}', 
+                     f'S_N_{str(SN[2,0])}-{str(SN[2,1])}', f'S_N_{str(SN[3,0])}-{str(SN[3,1])}', 
+                     'param_fit_a', 'param_fit_b')
 
             nrows = len(beta_table_data[0]) - 1
             param_fit_a = [popt_sarzi[0]] + [-999] * nrows

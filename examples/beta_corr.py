@@ -121,6 +121,9 @@ class CubeData:
 
         self.SN_lims = [[sn_bin_edges[i], sn_bin_edges[i + 1]] for i in range(len(sn_bin_edges) - 1)]
 
+        print(f"Using Nspax Ranges: {self.N_spx_lims}")
+        print(f"Using S/N ranges: {self.SN_lims}")
+
 
 
     def SN_dict(self):

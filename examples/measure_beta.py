@@ -3,6 +3,7 @@ import glob
 import argparse
 import warnings
 
+from mangadap.config import defaults
 from mangadap.util.parser import DefaultConfig
 from beta_corr import CubeData
 import beta_corr_old
@@ -30,12 +31,10 @@ def get_args():
     return parser.parse_args()
 
 def main(args):
-    # fit_one_cube_muse.py directory path
-    file_dir = os.path.dirname(os.path.abspath(__file__))
-
     # main cube directory path
     #main_cube_dir = os.path.join(os.path.dirname(file_dir), 'MUSE_cubes')
-    main_cube_dir = "/data2/muse/muse_cubes/"
+    data_dir = defaults.galaxy_data_root()
+    main_cube_dir = os.path.join(data_dir, 'muse_cubes')
 
     # cube directory path
     cube_dir = os.path.join(main_cube_dir, args.galname)

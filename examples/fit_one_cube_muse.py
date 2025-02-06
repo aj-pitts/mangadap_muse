@@ -106,12 +106,12 @@ class DAP_MUSE:
                 defined by :func:`mangadap.config.defaults.dap_analysis_path`.
         """
 
-        # fit_one_cube_muse_test.py directory path
-        file_dir = os.path.dirname(os.path.abspath(__file__))
-
         # main output directory
-        #output_root_dir = os.path.join(os.path.dirname(file_dir), 'outputs')
-        output_root_dir = "/data2/muse/dap_outputs/"
+        data_dir = defaults.galaxy_data_root()
+
+        #output_root_dir = "/data2/muse/dap_outputs/"
+        output_root_dir = os.path.join(data_dir, 'dap_outputs')
+        
         # make the directory if there isn't one already
         if not os.path.isdir(output_root_dir):
             os.makedirs(output_root_dir)
@@ -180,9 +180,6 @@ def main(args):
             Instance that takes in command line arguments and converts them
             to attributes associated with the :object;`args`.
     """
-    # fit_one_cube_muse.py directory path
-    file_dir = os.path.dirname(os.path.abspath(__file__))
-
     # main cube directory path
     #main_cube_dir = os.path.join(os.path.dirname(file_dir), 'MUSE_cubes')
     data_root = defaults.galaxy_data_root()

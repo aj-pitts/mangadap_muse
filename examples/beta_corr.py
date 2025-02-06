@@ -36,9 +36,6 @@ plt.rcParams['ytick.minor.size'] = 8
 class CubeData:
 
     def __init__(self, galname=None, bin_key=None, plate=None, ifu=None):
-
-        # mangadap_muse root directory path
-        mangadap_muse_dir = os.path.dirname(os.path.dirname(defaults.dap_data_root()))
         # output directory path
         data_root_dir = defaults.galaxy_data_root()
         output_root_dir = os.path.join(data_root_dir, 'dap_outputs')
@@ -86,6 +83,10 @@ class CubeData:
         ## N spax
         bin_sizes = np.unique([np.sum(ID == self.binid_map) for ID in np.unique(self.binid_map)[1:]])
         min_bin_size, max_bin_size = bin_sizes.min(), bin_sizes.max()
+
+        print(f"Minimum Bin Size: {min_bin_size:.0f} spaxels")
+        print(f"Maximum Bin Size: {max_bin_size:.0f} spaxels\n")
+
         N_spax_edges = np.linspace(min_bin_size, max_bin_size, num_Nspax_ranges + 1)
         N_spax_edges = np.round(N_spax_edges).astype(int)
 
@@ -98,8 +99,10 @@ class CubeData:
         
         signal_to_noises = sn_cube[clean]
 
-        min_sn, max_sn = 0, np.max(signal_to_noises)
-        
+        min_sn, max_sn = 0, np.max(signal_to_noises[np.isfinite(signal_to_noises)])
+        print(f"Minimum S/N: {min_sn:.0f}")
+        print(f"Maximum S/N: {max_sn:.0f}")
+
         try:
             coefficients = [1] * (num_S2N_ranges - 1) + [1 - (max_sn / SN_start)]
             roots = np.roots(coefficients)
@@ -119,7 +122,7 @@ class CubeData:
         sn_bin_edges.append(int(max_sn))
         sn_bin_edges = np.linspace(min_sn, max_sn, num_S2N_ranges + 1)
 
-        self.SN_lims = [[sn_bin_edges[i], sn_bin_edges[i + 1]] for i in range(len(sn_bin_edges) - 1)]
+        self.SN_lims = [[int(sn_bin_edges[i]), int(sn_bin_edges[i + 1])] for i in range(len(sn_bin_edges) - 1)]
 
         print(f"Using Nspax Ranges: {self.N_spx_lims}")
         print(f"Using S/N ranges: {self.SN_lims}")

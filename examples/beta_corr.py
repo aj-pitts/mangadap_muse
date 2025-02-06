@@ -116,12 +116,11 @@ class CubeData:
         counter = 1
         while current_edge < max_sn and counter < num_S2N_ranges:
             sn_bin_edges.append(int(current_edge))
-            print(sn_bin_edges)
             current_edge *= SN_scale_factor
             counter += 1
 
         sn_bin_edges.append(int(max_sn))
-        sn_bin_edges = np.linspace(min_sn, max_sn, num_S2N_ranges + 1)
+        #sn_bin_edges = np.linspace(min_sn, max_sn, num_S2N_ranges + 1)
 
         self.SN_lims = [[int(sn_bin_edges[i]), int(sn_bin_edges[i + 1])] for i in range(len(sn_bin_edges) - 1)]
 
@@ -453,9 +452,9 @@ class CubeData:
             # for a given S/N and N_spx size
             #names = ('S_N_0-50', 'S_N_50-75', 'S_N_75-100', 'param_fit_a', 'param_fit_b')
             SN = self.SN_lims
-            print(SN)
-            names = (f'S_N_{str(SN[0,0])}-{str(SN[0,1])}', f'S_N_{str(SN[1,0])}-{str(SN[1,1])}', 
-                     f'S_N_{str(SN[2,0])}-{str(SN[2,1])}', f'S_N_{str(SN[3,0])}-{str(SN[3,1])}', 
+
+            names = (f'S_N_{str(SN[0][0])}-{str(SN[0][1])}', f'S_N_{str(SN[1][0])}-{str(SN[1][1])}', 
+                     f'S_N_{str(SN[2][0])}-{str(SN[2][1])}', f'S_N_{str(SN[3][0])}-{str(SN[3][1])}', 
                      'param_fit_a', 'param_fit_b')
 
             nrows = len(beta_table_data[0]) - 1

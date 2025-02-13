@@ -10,6 +10,7 @@ LOGFILE="$LOGSUBDIR/DAP_$1_$2_${TIMESTAMP}.log"
 
 mkdir -p "$LOGSUBDIR"
 
-python fit_one_cube_muse.py "$@" > "$LOGFILE" 2>&1 &
+nohup python fit_one_cube_muse.py "$@" > "$LOGFILE" 2>&1 &
 
+echo "Running Script: python fit_one_cube_muse.py "$@" > "$LOGFILE" 2>&1 &"
 echo "Logging output to $LOGFILE"

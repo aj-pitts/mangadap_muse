@@ -36,6 +36,8 @@ from astropy.io import ascii
 # Add strict versioning
 # from distutils.version import StrictVersion
 
+from ...examples.beta_corr import CubeData
+
 class SpectralStackPar(KeywordParSet):
     r"""
     Class with parameters used to set how to stack a set of spectra.
@@ -602,10 +604,16 @@ class SpectralStack:
         print('S/N: {}, N_spx: {}'.format(S_N, N_spx))
         print('------------------'.format(S_N, N_spx))
 
+        bin_limit_file = os.path.join(beta_table_path, 'bin_lims.npz')
+        bin_lims = numpy.load(bin_limit_file, allow_pickle=True)
+
+        SNR_ranges = bin_lims['SN_lims']
+        N_spx_ranges = bin_lims['N_spx_lims']
+
         #SNR_ranges = numpy.array([[0, 50], [50, 75], [75, 100]])
-        SNR_ranges = numpy.array([[0, 15], [16, 30], [31, 60], [61, numpy.inf]])
+        #SNR_ranges = numpy.array([[0, 15], [16, 30], [31, 60], [61, numpy.inf]])
         #N_spx_ranges = numpy.array([3, 9, 25])
-        N_spx_ranges = numpy.array([9])
+        #N_spx_ranges = numpy.array([9])
 
         for S_N_range in SNR_ranges:
             if (S_N > S_N_range[0]) & (S_N < S_N_range[1]):

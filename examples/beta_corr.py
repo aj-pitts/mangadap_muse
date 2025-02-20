@@ -127,6 +127,19 @@ class CubeData:
         print(f"Using Nspax Ranges: {self.N_spx_lims}")
         print(f"Using S/N ranges: {self.SN_lims}")
 
+        # write the beta table into a .dat file
+        beta_tables_dir = os.path.join(defaults.dap_data_root(), 'beta_tables')
+        beta_tables_gal_dir = os.path.join(beta_tables_dir, f'{self.galname}-{self.bin_key}')
+        if not os.path.isdir(beta_tables_gal_dir):
+            os.makedirs(beta_tables_gal_dir)
+
+        # create the file name
+        file_name = f'bin_lims.npz'
+        bin_limits_filepath = os.path.join(beta_tables_gal_dir, file_name)
+        np.savez(bin_limits_filepath, N_spx_lims = self.N_spx_lims, SN_lims = self.SN_lims)
+
+        logging.info(f'Writing the Nspax and S/N ranges for {self.galname}-{self.bin_key} to {bin_limits_filepath}')
+
 
 
     def SN_dict(self):

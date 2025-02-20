@@ -36,8 +36,6 @@ from astropy.io import ascii
 # Add strict versioning
 # from distutils.version import StrictVersion
 
-from ...examples.beta_corr import CubeData
-
 class SpectralStackPar(KeywordParSet):
     r"""
     Class with parameters used to set how to stack a set of spectra.

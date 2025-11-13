@@ -443,6 +443,8 @@ class CubeData:
                     popt_sarzi, pcov_sarzi = curve_fit(beta_func_quad, np.array(bin_fit),np.array(beta_fit), sigma=np.array(beta_err), bounds=boundaries)
                 except Exception as error:
                     print(error)
+                    print(f"Beta values: {beta_fit}")
+                    print(f"Bin values: {bin_fit}")
                     popt_sarzi = (1.06, 1)
                     print(f'Assuming simple Garcia: a = {popt_sarzi[0]} b = {popt_sarzi[1]}')
 
@@ -452,6 +454,8 @@ class CubeData:
                 except Exception as error:
                     print(error)
                     popt_sarzi = (1.06, 1)
+                    print(f"Beta values: {beta_fit}")
+                    print(f"Bin values: {bin_fit}")
                     print(f'Assuming simple Garcia: a = {popt_sarzi[0]} b = {popt_sarzi[1]}')
 
             if np.sum(np.isfinite(pcov_sarzi)) != pcov_sarzi.size:

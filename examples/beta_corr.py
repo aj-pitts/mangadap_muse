@@ -84,6 +84,7 @@ class CubeData:
         bin_sizes = np.unique([np.sum(ID == self.binid_map) for ID in np.unique(self.binid_map)[1:]])
         min_bin_size, max_bin_size = bin_sizes.min(), bin_sizes.max()
 
+        print(f"Unique Bin Sizes: {np.unique(bin_sizes)}")
         print(f"Minimum Bin Size: {min_bin_size:.0f} spaxels")
         print(f"Maximum Bin Size: {max_bin_size:.0f} spaxels\n")
 
